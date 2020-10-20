@@ -1,0 +1,46 @@
+{% extends 'dog/main.html' %}
+
+{% block content %}
+
+<h2>Welcome to the Animal Shelter Outcome Predictor</h2>
+
+{% for kennel in kennels %}
+
+<div class="row">
+    <div class="col-md-8">
+        <h5>{{kennel.name}}</h5>
+        <div class="card card-body">
+            <table class="table table-md">
+                <tr>
+                    <th>ID</th>
+                    <th>Age</th>
+                    <th>Breed</th>
+                    <th>Intake</th>
+                    <th>Condition</th>
+                    <th>Outcome Prediction</th>
+                </tr>
+
+                {% for dog in dogs %}
+
+                	{% if dog.kennel == kennel %}
+                                {{dog.getTimeInShelter}}
+
+                		<tr>
+                		    <th>{{dog.id}}</th>
+                            <td>{{dog.age}}</td>
+                            <td>{{dog.breed}}</td>
+                            <td>{{dog.intake_type}}</td>
+                            <td>{{dog.condition}}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+            <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
+               href="">Kennel Analysis</a>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
+
+{% endblock %}
