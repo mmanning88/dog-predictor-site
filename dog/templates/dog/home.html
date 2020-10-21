@@ -19,11 +19,9 @@
                     <th>Condition</th>
                     <th>Outcome Prediction</th>
                 </tr>
-
                 {% for dog in dogs %}
 
                 	{% if dog.kennel == kennel %}
-                                {{dog.getTimeInShelter}}
 
                 		<tr>
                 		    <th>{{dog.id}}</th>
@@ -31,12 +29,16 @@
                             <td>{{dog.breed}}</td>
                             <td>{{dog.intake_type}}</td>
                             <td>{{dog.condition}}</td>
+                            <td>{{dog.outcome}}</td>
                         </tr>
                     {% endif %}
                 {% endfor %}
             </table>
+            <a title="Add a new dog to {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
+               href="/entry">Add Dog to Kennel</a>
             <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
                href="">Kennel Analysis</a>
+
         </div>
     </div>
 </div>

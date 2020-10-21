@@ -133,4 +133,4 @@ STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
 
-MODEL = '/static/ML'
+MODEL_URL = BASE_DIR.joinpath('static/ML')

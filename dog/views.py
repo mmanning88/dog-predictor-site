@@ -8,10 +8,7 @@ from bootstrap_datepicker_plus import DateTimePickerInput
 from .forms import DogEntry
 from .models import *
 
-
 # Create your views here.
-
-
 
 def loginPage(request):
     if request.method == "POST":
@@ -45,13 +42,11 @@ def home(request):
 
 def entry(request):
     form = DogEntry()
-
     if request.method == 'POST':
         form = DogEntry(request.POST, instance=Dog())
         if form.is_valid():
             form.save()
             return redirect('home')
-
 
     context = {'form': form}
 
@@ -62,3 +57,4 @@ def shelter(request):
     context = {}
 
     return render(request, 'dog/shelter.html', context)
+

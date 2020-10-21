@@ -1,8 +1,14 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
-from django.db.models.functions import datetime
-from django.db.models.functions import ExtractDay, ExtractHour, ExtractMonth, ExtractYear
-from datetime import datetime as dt
+import pandas as pd
+import numpy as np
+from django.utils import timezone
+from .apps import PredictorConfig
+
+from calendar import day_name
+
+
+
 
 
 # Create your models here.
@@ -28,7 +34,7 @@ class Dog(models.Model):
     )
     sex = models.CharField(max_length=10, choices=SEX, null=False)
     fixed = models.BooleanField(null=False)
-    created = models.DateTimeField(null=False, default=dt.now)
+    created = models.DateTimeField(null=False, default=timezone.now)
 
     PATTERNS = (
         ('none', 'None'),
@@ -62,43 +68,107 @@ class Dog(models.Model):
         ('brown', 'Brown'),
         ('white', 'White'),
         ('blue ', 'Blue'),
+        ('red ', 'Red'),
         ('tan', 'Tan'),
         ('yellow', 'Yellow'),
         ('cream', 'Red'),
-        ('tricolor', 'Tricolor'),
-        ('merle', 'Merle'),
-        ('sable', 'Sable'),
-        ('tick', 'Tick'),
-        ('brindle', 'Brindle')
+        ('gray', 'Gray'),
+        ('orange', 'Orange'),
+        ('buff', 'Buff'),
+        ('gold', 'Gold'),
+        ('silver', 'Silver')
     )
 
     breed = models.CharField(null=False, max_length=100, default='American Bulldog')
-    condition = models.CharField(max_length=32, choices=CONDITIONS, null=False, default='normal')
+    condition = models.CharField(max_length=40, choices=CONDITIONS, null=False, default='normal', verbose_name='intake condition')
     intake_type = models.CharField(max_length=100, choices=TYPES, null=False, default='stray')
     coat_pattern = models.CharField(max_length=32, choices=PATTERNS, null=False, default='none')
     primary_color = models.CharField(max_length=32, choices=COLORS, null=False, default='none')
-    age = models.IntegerField(validators=[MaxValueValidator(20)])
+    age = models.PositiveIntegerField(validators=[MaxValueValidator(20)])
     mixed = models.BooleanField(null=False, default=False)
     puppy = models.BooleanField(null=False, default=False)
-    bully = models.BooleanField(null=False, default=False)
-    outcome = models.ManyToManyField(Outcome, null=True, editable=True, blank=True)
+    bully = models.BooleanField(null=False, default=False, verbose_name='is this a bully breed?')
     kennel = models.ForeignKey(Kennel, to_field='name', default='Default', on_delete=models.CASCADE)
 
     def getHour(self):
         return self.created.hour
 
     def getDay(self):
-        return self.created.day
+        return day_name[self.created.weekday()]
 
     def getMonth(self):
         return self.created.month
 
-    def getYear(self):
-        return self.created.year
+    bins = PredictorConfig.bins
 
     def getTimeInShelter(self):
-        delta = dt.now().date() - self.created
-        return delta
+
+        result = ((timezone.now() - self.created).seconds / 60) / 24
+        return result
+
+    # Dog objects can only be read by predictor as a list of lists
+    # [['Female', 'Yes', 'Mixed', '(0.21, 1.04]', 'yellow', 14, 'Thursday', 12,
+    #              '(7.5, 10.0]', 'Sick', 'Stray', 'Dog', 'Not Bully']]
+
+    def returnList(self):
+        hour = self.getHour()
+        weekday = self.getDay()
+        month = self.getMonth()
+        days = self.getTimeInShelter()
+
+        if self.bully:
+            bully = 'Bully'
+        else:
+            bully = 'Not Bully'
+
+        if self.fixed:
+            fixed = 'Yes'
+        else:
+            fixed = 'No'
+
+        if self.mixed:
+            mixed = 'Mixed'
+        else:
+            mixed = 'Purebred'
+
+        if self.coat_pattern == 'None':
+            coat = self.primary_color
+        elif self.primary_color == 'None':
+            coat = self.coat_pattern
+        else:
+            coat = self.primary_color
+
+        if self.puppy:
+            puppy = 'Puppy'
+        else:
+            puppy = 'Dog'
+        dog_entry = [[self.sex, fixed, mixed, days, coat, hour,
+                      weekday, month, self.age, self.condition, self.intake_type,
+                      puppy, bully]]
+        return dog_entry
+
+    def toDataframe(self):
+        df = self.returnList()
+        df = pd.DataFrame(df, columns=PredictorConfig.columns)
+        df['time_in_shelter_days_12'] = pd.cut(df['time_in_shelter_days_12'], bins=PredictorConfig.bins)
+        for col in df:
+            df[col] = df[col].astype('category')
+        df = PredictorConfig.ct.transform(df)
+        return df
+
+    def predictOutcome(self):
+        result = PredictorConfig.classifier.predict(self.toDataframe())
+        if result == [0]:
+            result = 'Return to Owner'
+        elif result == [1]:
+            result = 'Transfer'
+        elif result == [2]:
+            result = 'Adoption'
+        elif result == [3]:
+            result = 'Euthanasia'
+        return result
+
+    outcome = models.ManyToManyField(Outcome, null=True, editable=True, blank=True)
 
     def __str__(self):
         return str(self.age) + ' year old ' + self.breed

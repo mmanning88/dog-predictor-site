@@ -1,13 +1,14 @@
 from django.forms import ModelForm
 from bootstrap_datepicker_plus import DateTimePickerInput
 
+from .widgets import *
 from .models import Dog
 
 class DogEntry(ModelForm):
     class Meta:
         model = Dog
         fields = [
-            # 'kennel',
+            'kennel',
             'sex',
             'fixed',
             'breed',
@@ -22,5 +23,6 @@ class DogEntry(ModelForm):
             'created'
         ]
         widgets = {
-            'created': DateTimePickerInput()
+            'created': DateTimePickerInput(),
         }
+        Dog.outcome = Dog.predictOutcome
