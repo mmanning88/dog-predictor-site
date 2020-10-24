@@ -47,12 +47,13 @@ class Dog(models.Model):
     )
 
     CONDITIONS = (
-        ('normal', 'Normal'),
-        ('injured', 'Injured'),
+        ('Normal', 'Normal'),
+        ('Injured', 'Injured'),
         ('sick', 'Sick'),
-        ('nursing', 'Nursing'),
-        ('aged', 'Aged'),
-        ('pregnant', 'Pregnant')
+        ('Nursing', 'Nursing'),
+        ('Aggressive', 'Aggressive'),
+        ('Aged', 'Aged'),
+        ('Pregnant', 'Pregnant')
     )
 
     TYPES = (

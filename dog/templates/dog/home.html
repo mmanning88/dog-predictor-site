@@ -30,6 +30,9 @@
                             <td>{{dog.intake_type}}</td>
                             <td>{{dog.condition}}</td>
                             <td>{{dog.outcome}}</td>
+                            <td><a class="btn btn-sm btn-info" href="{% url 'update' dog.id %}">Update</a></td>
+                            <td><a class="btn btn-sm btn-danger" href="{% url 'delete' dog.id %}">Remove</a></td>
+
                         </tr>
                     {% endif %}
                 {% endfor %}

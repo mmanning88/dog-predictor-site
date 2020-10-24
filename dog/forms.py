@@ -26,3 +26,11 @@ class DogEntry(ModelForm):
             'created': DateTimePickerInput(),
         }
         Dog.outcome = Dog.predictOutcome
+
+# class removeDog(ModelForm):
+#     class Meta:
+#         model = Dog
+#         fields = [
+#             'outcome',
+#             # 'true_outcome'
+#         ]
