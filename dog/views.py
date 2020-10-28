@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 
 from bootstrap_datepicker_plus import DateTimePickerInput
 
-from .forms import DogEntry
+from .forms import DogEntry, RemoveDog
 from .models import *
 
 
@@ -71,17 +71,24 @@ def updateDog(request, pk):
 def deleteDog(request, pk):
     dog = Dog.objects.get(id=pk)
     kennels = Kennel.objects.all()
+    form = RemoveDog(instance=dog)
 
-    context = {'dog':dog, 'kennels':kennels}
+    context = {'dog':dog, 'kennels':kennels, 'form': form}
 
     if request.method == 'POST':
-        dog.delete()
-        return redirect('/')
+        form = RemoveDog(request.POST, instance=dog)
+        if form.is_valid():
+            dog.kennel = kennels.objects.get(name='Historical Outcomes')
+            form.save()
+            return redirect('/')
 
     return render(request, 'dog/delete.html', context)
 
 
-def shelter(request):
-    context = {}
+def kennel(request, pk):
+    kennel = Kennel.objects.get(id=pk)
+    dogs = kennel.dog_set.all()
 
-    return render(request, 'dog/shelter.html', context)
+    context = {'kennel':kennel, 'dogs':dogs}
+
+    return render(request, 'dog/kennel.html', context)

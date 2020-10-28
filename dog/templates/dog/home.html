@@ -7,9 +7,9 @@
 {% for kennel in kennels %}
 
 <div class="row">
-    <div class="col-md-8">
-        <h5>{{kennel.name}}</h5>
+    <div class="col-lg-10">
         <div class="card card-body">
+            <h5>{{kennel.name}}</h5>
             <table class="table table-md">
                 <tr>
                     <th>ID</th>
@@ -18,6 +18,9 @@
                     <th>Intake</th>
                     <th>Condition</th>
                     <th>Outcome Prediction</th>
+                    {% if kennel.id == 2 %}
+                    <th>True Outcome</th>
+                    {% endif %}
                 </tr>
                 {% for dog in dogs %}
 
@@ -30,6 +33,9 @@
                             <td>{{dog.intake_type}}</td>
                             <td>{{dog.condition}}</td>
                             <td>{{dog.outcome}}</td>
+                            {% if kennel.id == 2 %}
+                            <td>{{dog.true_outcome}}</td>
+                            {% endif %}
                             <td><a class="btn btn-sm btn-info" href="{% url 'update' dog.id %}">Update</a></td>
                             <td><a class="btn btn-sm btn-danger" href="{% url 'delete' dog.id %}">Remove</a></td>
 
@@ -37,10 +43,15 @@
                     {% endif %}
                 {% endfor %}
             </table>
+            {% if kennel.id == 2 %}
+            <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
+               href="{% url 'kennel' kennel.id %}">Kennel Analysis</a>
+            {% else %}
             <a title="Add a new dog to {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
                href="/entry">Add Dog to Kennel</a>
             <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
-               href="">Kennel Analysis</a>
+               href="{% url 'kennel' kennel.id %}">Kennel Analysis</a>
+            {% endif %}
 
         </div>
     </div>

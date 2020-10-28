@@ -1,8 +1,8 @@
 from django.forms import ModelForm
 from bootstrap_datepicker_plus import DateTimePickerInput
 
-from .widgets import *
 from .models import Dog
+
 
 class DogEntry(ModelForm):
     class Meta:
@@ -27,10 +27,10 @@ class DogEntry(ModelForm):
         }
         Dog.outcome = Dog.predictOutcome
 
-# class removeDog(ModelForm):
-#     class Meta:
-#         model = Dog
-#         fields = [
-#             'outcome',
-#             # 'true_outcome'
-#         ]
+
+class RemoveDog(ModelForm):
+    class Meta:
+        model = Dog
+        fields = [
+            'true_outcome'
+        ]

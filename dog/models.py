@@ -17,7 +17,7 @@ class Kennel(models.Model):
     name = models.CharField(max_length=200, null=True, unique=True)
 
     def __str__(self):
-        return self.name
+        return str(self.id) + ' ' + self.name
 
 
 class Outcome(models.Model):
@@ -49,7 +49,7 @@ class Dog(models.Model):
     CONDITIONS = (
         ('Normal', 'Normal'),
         ('Injured', 'Injured'),
-        ('sick', 'Sick'),
+        ('Sick', 'Sick'),
         ('Nursing', 'Nursing'),
         ('Aggressive', 'Aggressive'),
         ('Aged', 'Aged'),
@@ -57,10 +57,10 @@ class Dog(models.Model):
     )
 
     TYPES = (
-        ('stray', 'Stray'),
-        ('owner surrender', 'Owner Surrender'),
-        ('public assist', 'Public Assist'),
-        ('euthanasia request', 'Euthanasia Request')
+        ('Stray', 'Stray'),
+        ('Owner Surrender', 'Owner Surrender'),
+        ('Public Assist', 'Public Assist'),
+        ('Euthanasia Request', 'Euthanasia Request')
     )
 
     COLORS = (
@@ -80,6 +80,13 @@ class Dog(models.Model):
         ('silver', 'Silver')
     )
 
+    OUTCOMES = (
+        ('Adoption', 'Adoption'),
+        ('Return to Owner', 'Return to Owner'),
+        ('Transfer', 'Transfer'),
+        ('Euthanasia', 'Euthanasia')
+    )
+
     breed = models.CharField(null=False, max_length=100, default='American Bulldog')
     condition = models.CharField(max_length=40, choices=CONDITIONS, null=False, default='normal', verbose_name='intake condition')
     intake_type = models.CharField(max_length=100, choices=TYPES, null=False, default='stray')
@@ -89,7 +96,7 @@ class Dog(models.Model):
     mixed = models.BooleanField(null=False, default=False)
     puppy = models.BooleanField(null=False, default=False)
     bully = models.BooleanField(null=False, default=False, verbose_name='is this a bully breed?')
-    kennel = models.ForeignKey(Kennel, to_field='name', default='Default', on_delete=models.CASCADE)
+    kennel = models.ForeignKey(Kennel, to_field='name', default='Default', null=True, on_delete=models.CASCADE)
 
     def getHour(self):
         return self.created.hour
@@ -169,7 +176,8 @@ class Dog(models.Model):
             result = 'Euthanasia'
         return result
 
-    outcome = models.ManyToManyField(Outcome, null=True, editable=True, blank=True)
+    outcome = models.ManyToManyField(Outcome, editable=True, blank=True)
+    true_outcome = models.CharField(max_length=50, choices=OUTCOMES, null=True, editable=True, blank=True)
 
     def __str__(self):
         return str(self.age) + ' year old ' + self.breed
