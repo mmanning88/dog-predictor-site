@@ -25,7 +25,6 @@ class DogEntry(ModelForm):
         widgets = {
             'created': DateTimePickerInput(),
         }
-        Dog.pred_outcome = Dog.predictOutcome
 
 class RemoveDog(ModelForm):
     class Meta:

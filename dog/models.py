@@ -116,45 +116,45 @@ class Dog(models.Model):
     # [['Female', 'Yes', 'Mixed', '(0.21, 1.04]', 'yellow', 14, 'Thursday', 12,
     #              '(7.5, 10.0]', 'Sick', 'Stray', 'Dog', 'Not Bully']]
 
-    def returnList(self):
-        hour = self.getHour()
-        weekday = self.getDay()
-        month = self.getMonth()
-        days = self.getTimeInShelter()
+    def returnList(Dog):
+        hour = Dog.getHour()
+        weekday = Dog.getDay()
+        month = Dog.getMonth()
+        days = Dog.getTimeInShelter()
 
-        if self.bully:
+        if Dog.bully:
             bully = 'Bully'
         else:
             bully = 'Not Bully'
 
-        if self.fixed:
+        if Dog.fixed:
             fixed = 'Yes'
         else:
             fixed = 'No'
 
-        if self.mixed:
+        if Dog.mixed:
             mixed = 'Mixed'
         else:
             mixed = 'Purebred'
 
-        if self.coat_pattern == 'None':
-            coat = self.primary_color
-        elif self.primary_color == 'None':
-            coat = self.coat_pattern
+        if Dog.coat_pattern == 'None':
+            coat = Dog.primary_color
+        elif Dog.primary_color == 'None':
+            coat = Dog.coat_pattern
         else:
-            coat = self.primary_color
+            coat = Dog.primary_color
 
-        if self.puppy:
+        if Dog.puppy:
             puppy = 'Puppy'
         else:
             puppy = 'Dog'
-        dog_entry = [[self.sex, fixed, mixed, days, coat, hour,
-                      weekday, month, self.age, self.condition, self.intake_type,
+        dog_entry = [[Dog.sex, fixed, mixed, days, coat, hour,
+                      weekday, month, Dog.age, Dog.condition, Dog.intake_type,
                       puppy, bully]]
         return dog_entry
 
-    def toDataframe(self):
-        df = self.returnList()
+    def toDataframe(Dog):
+        df = Dog.returnList()
         df = pd.DataFrame(df, columns=PredictorConfig.columns)
         df['time_in_shelter_days_12'] = pd.cut(df['time_in_shelter_days_12'], bins=PredictorConfig.bins)
         for col in df:
@@ -172,13 +172,17 @@ class Dog(models.Model):
             result = 'Adoption'
         elif result == [3]:
             result = 'Euthanasia'
-        else:
-            result = 'No Outcome'
         return result
 
-    pred_outcome = models.CharField(max_length=50, editable=True, default=predictOutcome)
+    pred_outcome = models.CharField(max_length=50, editable=True, null=True)
     true_outcome = models.CharField(max_length=50, choices=OUTCOMES, null=True, editable=True, blank=True)
 
     def __str__(self):
         return str(self.age) + ' year old ' + self.breed
+
+    def save(self, *args, **kwargs):
+        self.pred_outcome = self.predictOutcome()
+
+
+        super(Dog, self).save(*args, **kwargs)
 
