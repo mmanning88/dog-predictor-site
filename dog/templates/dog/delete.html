@@ -9,21 +9,13 @@
 		<div class="card card-body">
 
 
-			<p>This will remove "{{dog}}" from {{dog.kennel}}</p>
+			<p>This will delete "{{dog}}" from database</p>
 
 			<form action="{% url 'delete' dog.id  %}" method="POST">
 
 				{% csrf_token %}
-				{% for field in form %}
-                <label>{{ field.label}}</label>
-                {{field}}
-                <hr>
-				<label>Predicted Outcome:</label>
-				{{dog.outcome}}
-				<hr>
-                {% endfor %}
-				<a class="btn btn-warning" href="{% url 'home' %}">Cancel</a>
 
+                <a class="btn btn-warning" href="{% url 'home' %}">Cancel</a>
 				<input class="btn btn-danger" type="submit" name="Confirm">
 			</form>
 		</div>

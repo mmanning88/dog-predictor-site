@@ -1,6 +1,47 @@
 {% extends 'dog/main.html' %}
 
 {% block content %}
+<a class="btn btn-info  btn-sm btn-block"
+   href="/">Back to Main Page</a>
+
+ <table class="table table-md">
+                <tr>
+                    <th>ID</th>
+                    <th>Age</th>
+                    <th>Breed</th>
+                    <th>Intake</th>
+                    <th>Condition</th>
+                    <th>Outcome Prediction</th>
+                    {% if kennel.id == 2 %}
+                    <th>True Outcome</th>
+                    {% endif %}
+                </tr>
+                {% for dog in dogs %}
+
+                	{% if dog.kennel == kennel %}
+
+                		<tr>
+                		    <th>{{dog.id}}</th>
+                            <td>{{dog.age}}</td>
+                            <td>{{dog.breed}}</td>
+                            <td>{{dog.intake_type}}</td>
+                            <td>{{dog.condition}}</td>
+                            <td>{{dog.pred_outcome}}</td>
+                            {% if kennel.id == 2 %}
+                            <td>{{dog.true_outcome}}</td>
+                            {% endif %}
+                            <td><a class="btn btn-sm btn-info" href="{% url 'update' dog.id %}">Update</a></td>
+                            <td><a class="btn btn-sm btn-danger" href="{% url 'remove' dog.id %}">Remove</a></td>
+                            <td><a class="btn btn-sm btn-danger" href="{% url 'delete' dog.id %}">Delete</a></td>
+
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+
+<h1>Graph for {{kennel.name}}</h1>
+    {{div | safe}}
 
 
+    {{script | safe}}
 {% endblock %}

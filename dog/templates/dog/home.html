@@ -32,12 +32,13 @@
                             <td>{{dog.breed}}</td>
                             <td>{{dog.intake_type}}</td>
                             <td>{{dog.condition}}</td>
-                            <td>{{dog.outcome}}</td>
+                            <td>{{dog.pred_outcome}}</td>
                             {% if kennel.id == 2 %}
                             <td>{{dog.true_outcome}}</td>
                             {% endif %}
                             <td><a class="btn btn-sm btn-info" href="{% url 'update' dog.id %}">Update</a></td>
-                            <td><a class="btn btn-sm btn-danger" href="{% url 'delete' dog.id %}">Remove</a></td>
+                            <td><a class="btn btn-sm btn-danger" href="{% url 'remove' dog.id %}">Remove</a></td>
+                            <td><a class="btn btn-sm btn-danger" href="{% url 'delete' dog.id %}">Delete</a></td>
 
                         </tr>
                     {% endif %}

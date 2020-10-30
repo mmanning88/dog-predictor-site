@@ -8,9 +8,6 @@ from .apps import PredictorConfig
 from calendar import day_name
 
 
-
-
-
 # Create your models here.
 
 class Kennel(models.Model):
@@ -88,7 +85,8 @@ class Dog(models.Model):
     )
 
     breed = models.CharField(null=False, max_length=100, default='American Bulldog')
-    condition = models.CharField(max_length=40, choices=CONDITIONS, null=False, default='normal', verbose_name='intake condition')
+    condition = models.CharField(max_length=40, choices=CONDITIONS, null=False, default='normal',
+                                 verbose_name='intake condition')
     intake_type = models.CharField(max_length=100, choices=TYPES, null=False, default='stray')
     coat_pattern = models.CharField(max_length=32, choices=PATTERNS, null=False, default='none')
     primary_color = models.CharField(max_length=32, choices=COLORS, null=False, default='none')
@@ -174,10 +172,13 @@ class Dog(models.Model):
             result = 'Adoption'
         elif result == [3]:
             result = 'Euthanasia'
+        else:
+            result = 'No Outcome'
         return result
 
-    outcome = models.ManyToManyField(Outcome, editable=True, blank=True)
+    pred_outcome = models.CharField(max_length=50, editable=True, default=predictOutcome)
     true_outcome = models.CharField(max_length=50, choices=OUTCOMES, null=True, editable=True, blank=True)
 
     def __str__(self):
         return str(self.age) + ' year old ' + self.breed
+
