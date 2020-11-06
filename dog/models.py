@@ -13,6 +13,10 @@ from calendar import day_name
 class Kennel(models.Model):
     name = models.CharField(max_length=200, null=True, unique=True)
 
+    def toDataFrame(self):
+        pass
+
+
     def __str__(self):
         return str(self.id) + ' ' + self.name
 
@@ -31,7 +35,7 @@ class Dog(models.Model):
     )
     sex = models.CharField(max_length=10, choices=SEX, null=False)
     fixed = models.BooleanField(null=False)
-    created = models.DateTimeField(null=False, default=timezone.now)
+    created = models.DateTimeField(null=False, default=timezone.now, verbose_name="Intake Time (MM/DD/YYYY HH:MM)")
 
     PATTERNS = (
         ('none', 'None'),
@@ -90,11 +94,12 @@ class Dog(models.Model):
     intake_type = models.CharField(max_length=100, choices=TYPES, null=False, default='stray')
     coat_pattern = models.CharField(max_length=32, choices=PATTERNS, null=False, default='none')
     primary_color = models.CharField(max_length=32, choices=COLORS, null=False, default='none')
-    age = models.PositiveIntegerField(validators=[MaxValueValidator(20)])
+    age = models.PositiveIntegerField(validators=[MaxValueValidator(20)], verbose_name="Age (0 for less than one year old)")
     mixed = models.BooleanField(null=False, default=False)
     puppy = models.BooleanField(null=False, default=False)
     bully = models.BooleanField(null=False, default=False, verbose_name='is this a bully breed?')
-    kennel = models.ForeignKey(Kennel, to_field='name', default='Default', null=True, on_delete=models.CASCADE)
+    kennel = models.ForeignKey(Kennel, default=1, null=True, on_delete=models.CASCADE)
+
 
     def getHour(self):
         return self.created.hour
@@ -176,13 +181,16 @@ class Dog(models.Model):
 
     pred_outcome = models.CharField(max_length=50, editable=True, null=True)
     true_outcome = models.CharField(max_length=50, choices=OUTCOMES, null=True, editable=True, blank=True)
+    hour = models.IntegerField(null=False, default=0)
+    day = models.CharField(null=False, default='Sunday', max_length=20)
 
     def __str__(self):
-        return str(self.age) + ' year old ' + self.breed
+        return 'ID: ' + str(self.id) + ' ' + self.breed
 
     def save(self, *args, **kwargs):
         self.pred_outcome = self.predictOutcome()
-
+        self.hour = self.getHour()
+        self.day = self.getDay()
 
         super(Dog, self).save(*args, **kwargs)
 

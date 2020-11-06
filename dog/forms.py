@@ -1,14 +1,13 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, Form, CharField, Select, ChoiceField
 from bootstrap_datepicker_plus import DateTimePickerInput
 
-from .models import Dog
+from .models import Dog, Kennel
 
 
 class DogEntry(ModelForm):
     class Meta:
         model = Dog
         fields = [
-            'kennel',
             'sex',
             'fixed',
             'breed',
@@ -32,3 +31,4 @@ class RemoveDog(ModelForm):
         fields = [
             'true_outcome'
         ]
+

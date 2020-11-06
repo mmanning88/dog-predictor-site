@@ -1,0 +1,14 @@
+{% extends 'dog/main.html' %}
+{% block content %}
+<a class="btn btn-info  btn-sm btn-block"
+   href="/">Back to Main Page</a>
+<a class="btn btn-info  btn-sm btn-block"
+   href="/kennel">Back to Kennel Graphs</a>
+
+<h1>Heatmap for {{kennel.name}} kennel</h1>
+
+    {{div | safe}}
+
+
+    {{script | safe}}
+{% endblock %}

@@ -2,6 +2,11 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 
+import numpy as np
+import pandas as pd
+from django_pandas.io import read_frame
+import holoviews as hv
+
 from bootstrap_datepicker_plus import DateTimePickerInput
 
 from .forms import DogEntry, RemoveDog
@@ -10,9 +15,10 @@ from .models import *
 from django.shortcuts import render
 from bokeh.plotting import figure
 from bokeh.embed import components
-from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawTool, ColumnDataSource
-from bokeh.palettes import Category20c, Spectral6
-from bokeh.transform import cumsum
+from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawTool, ColumnDataSource, Select, \
+    LinearColorMapper
+from bokeh.palettes import Category20c, Spectral6, Spectral4
+from bokeh.transform import cumsum, factor_cmap
 
 
 # Create your views here.
@@ -41,7 +47,7 @@ def logoutUser(request):
 def home(request):
     dogs = Dog.objects.all()
     for dog in dogs:
-        if dog.pred_outcome is 'No Outcome':
+        if dog.pred_outcome == 'No Outcome':
             dog.pred_outcome = dog.predictOutcome
     kennels = Kennel.objects.all()
 
@@ -94,6 +100,7 @@ def removeDog(request, pk):
 
     return render(request, 'dog/remove.html', context)
 
+
 def deleteDog(request, pk):
     dog = Dog.objects.get(id=pk)
 
@@ -106,37 +113,109 @@ def deleteDog(request, pk):
     return render(request, 'dog/delete.html', context)
 
 
-def kennel(request, pk):
+def kennel(request):
+    kennels = Kennel.objects.all()
+
+
+    context = {'kennels': kennels}
+
+    return render(request, 'dog/kennel.html', context)
+
+def dayweekHeatMap(request, pk):
+    hv.extension('bokeh')
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
 
-    adoptions = 0
-    transfers = 0
-    euthanasias = 0
-    returns = 0
-    counts = []
-    items = ["Adoption", "Transfer", "Euthanasia", "Return to Owner"]
-    # for dog in dogs:
-        # if 'Adoption' in dog.pred_outcome:
-        #     adoptions += 1
-    #     elif 'Transfer' in dog.values():
-    #         transfers += 1
-    #     elif 'Euthanasia' in dog.values():
-    #         returns += 1
-    #     elif 'Return to Owner' in dog.values():
-    #         euthanasias += 1
-    counts.extend([adoptions, transfers, euthanasias, returns])
+    data = read_frame(dogs, fieldnames=['day', 'hour'])
+    data = data.groupby(["day", "hour"]).size().reset_index(name="counts")
+    hm = hv.HeatMap(data).sort()
+    hm.opts(xticks=None, colorbar=True, width=600, xlabel='Day', ylabel='Hour')
+    renderer = hv.renderer('bokeh')
+    plot = renderer.get_plot(hm).state
 
-    plot = figure(x_range=items, plot_height=600, plot_width=600, title="Dog Outcomes",
+    script, div = components(plot)
+
+    context = {'script': script, 'div': div, 'kennel':kennel}
+    return render(request, 'dog/dayweekhm.html', context)
+
+def genderPlot(request, pk):
+    kennel = Kennel.objects.get(id=pk)
+    dogs = kennel.dog_set.all()
+    sexes = ['male', 'female']
+    adoptions_male = 0
+    transfers_male = 0
+    euthanasias_male = 0
+    returns_male = 0
+    adoptions_female = 0
+    transfers_female = 0
+    euthanasias_female = 0
+    returns_female = 0
+    colors = ["#add8e6", "#FFC0CB"]
+    items = ["Adoption", "Transfer", "Euthanasia", "Return to Owner"]
+
+    for dog in dogs:
+        if dog.sex == 'Male':
+            if 'Adoption' in dog.pred_outcome:
+                adoptions_male += 1
+            elif 'Transfer' in dog.pred_outcome:
+                transfers_male += 1
+            elif 'Euthanasia' in dog.pred_outcome:
+                returns_male += 1
+            elif 'Return to Owner' in dog.pred_outcome:
+                euthanasias_male += 1
+        if dog.sex == 'Female':
+            if 'Adoption' in dog.pred_outcome:
+                adoptions_female += 1
+            elif 'Transfer' in dog.pred_outcome:
+                transfers_female += 1
+            elif 'Euthanasia' in dog.pred_outcome:
+                returns_female += 1
+            elif 'Return to Owner' in dog.pred_outcome:
+                euthanasias_female += 1
+
+    data = {
+        'items': items,
+        'male': [adoptions_male, transfers_male, euthanasias_male, returns_male],
+        'female': [adoptions_female, transfers_female, euthanasias_female, returns_female]
+    }
+
+    plot = figure(x_range=items, plot_height=600, plot_width=600, title="Dog Outcomes By Sex",
                   toolbar_location="right", tools="pan,wheel_zoom,box_zoom,reset, hover, tap, crosshair")
     plot.title.text_font_size = '20pt'
 
-    plot.xaxis.major_label_text_font_size = "14pt"
-    plot.vbar(items, top=counts, width=.4, color="firebrick", legend_label="Outcome Counts")
-    plot.legend.label_text_font_size = '14pt'
+    plot.vbar_stack(sexes, x='items', width=0.9, color=colors, source=data, legend_label=sexes)
 
     script, div = components(plot)
 
     context = {'kennel': kennel, 'dogs': dogs, 'script': script, 'div': div}
 
-    return render(request, 'dog/kennel.html', context)
+    return render(request, 'dog/genderPlot.html', context)
+
+def outcomeHeatMap(request, pk):
+    hv.extension('bokeh')
+    kennel = Kennel.objects.get(id=pk)
+    dogs = kennel.dog_set.all()
+
+    data = read_frame(dogs, fieldnames=['intake_type', 'pred_outcome'])
+    data = data.groupby(["intake_type", "pred_outcome"]).size().reset_index(name="counts")
+    hm = hv.HeatMap(data).sort()
+    hm.opts(xticks=None, colorbar=True, width=600, xlabel='Intake Type', ylabel='Predicted Outcome')
+    renderer = hv.renderer('bokeh')
+    plot = renderer.get_plot(hm).state
+    script, div = components(plot)
+
+    context = {'script': script, 'div': div, 'kennel':kennel}
+    return render(request, 'dog/outcomehm.html', context)
+
+def outcomeTimePlot(request, pk):
+    kennel = Kennel.objects.get(id=pk)
+    dogs = kennel.dog_set.all()
+
+
+
+    script, div = components(plot)
+
+    context = {'kennel': kennel, 'script': script, 'div': div}
+
+    return render(request, 'dog/genderPlot.html', context)
+

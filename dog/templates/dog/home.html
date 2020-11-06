@@ -7,9 +7,9 @@
 {% for kennel in kennels %}
 
 <div class="row">
-    <div class="col-lg-10">
+    <div class="col-lg-12">
         <div class="card card-body">
-            <h5>{{kennel.name}}</h5>
+            <h5>Kennel Name: {{kennel.name}}</h5>
             <table class="table table-md">
                 <tr>
                     <th>ID</th>
@@ -24,7 +24,7 @@
                 </tr>
                 {% for dog in dogs %}
 
-                	{% if dog.kennel == kennel %}
+                	{% if dog.kennel.id == kennel.id %}
 
                 		<tr>
                 		    <th>{{dog.id}}</th>
@@ -36,9 +36,11 @@
                             {% if kennel.id == 2 %}
                             <td>{{dog.true_outcome}}</td>
                             {% endif %}
-                            <td><a class="btn btn-sm btn-info" href="{% url 'update' dog.id %}">Update</a></td>
-                            <td><a class="btn btn-sm btn-danger" href="{% url 'remove' dog.id %}">Remove</a></td>
-                            <td><a class="btn btn-sm btn-danger" href="{% url 'delete' dog.id %}">Delete</a></td>
+                            <td><a class="btn btn-sm btn-info" title="Update dog info" href="{% url 'update' dog.id %}">Update</a></td>
+                            {% if kennel.id != 2 %}
+                            <td><a class="btn btn-sm btn-danger" title="Check out dog from kennel" href="{% url 'remove' dog.id %}">Remove</a></td>
+                            {% endif %}
+                            <td><a class="btn btn-sm btn-danger" title="Remove dog from database" href="{% url 'delete' dog.id %}">Delete</a></td>
 
                         </tr>
                     {% endif %}
@@ -46,12 +48,12 @@
             </table>
             {% if kennel.id == 2 %}
             <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
-               href="{% url 'kennel' kennel.id %}">Kennel Analysis</a>
+               href="{% url 'kennel' %}">Kennel Analysis</a>
             {% else %}
             <a title="Add a new dog to {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
                href="/entry">Add Dog to Kennel</a>
             <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
-               href="{% url 'kennel' kennel.id %}">Kennel Analysis</a>
+               href="{% url 'kennel' %}">Kennel Analysis</a>
             {% endif %}
 
         </div>
