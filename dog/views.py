@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-
+from django.contrib.auth.decorators import login_required
 
 import numpy as np
 import pandas as pd
@@ -12,6 +12,7 @@ from bootstrap_datepicker_plus import DateTimePickerInput
 
 from .forms import DogEntry, RemoveDog
 from .models import *
+from .decorators import *
 
 from django.shortcuts import render
 from bokeh.plotting import figure
@@ -24,6 +25,7 @@ from bokeh.transform import cumsum, factor_cmap, jitter
 
 # Create your views here.
 
+@unauthenticated_user
 def loginPage(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -44,7 +46,7 @@ def logoutUser(request):
     logout(request)
     return redirect('login')
 
-
+@login_required(login_url='login')
 def home(request):
     dogs = Dog.objects.all()
     for dog in dogs:
@@ -56,7 +58,8 @@ def home(request):
 
     return render(request, 'dog/home.html', context)
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def entry(request):
     form = DogEntry()
     if request.method == 'POST':
@@ -69,7 +72,8 @@ def entry(request):
 
     return render(request, 'dog/entry.html', context)
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def updateDog(request, pk):
     dog = Dog.objects.get(id=pk)
     form = DogEntry(instance=dog)
@@ -84,7 +88,8 @@ def updateDog(request, pk):
 
     return render(request, 'dog/entry.html', context)
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def removeDog(request, pk):
     dog = Dog.objects.get(id=pk)
     kennels = Kennel.objects.all()
@@ -101,7 +106,8 @@ def removeDog(request, pk):
 
     return render(request, 'dog/remove.html', context)
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def deleteDog(request, pk):
     dog = Dog.objects.get(id=pk)
 
@@ -113,7 +119,8 @@ def deleteDog(request, pk):
 
     return render(request, 'dog/delete.html', context)
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def kennel(request):
     kennels = Kennel.objects.all()
 
@@ -122,6 +129,8 @@ def kennel(request):
 
     return render(request, 'dog/kennel.html', context)
 
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def dayweekHeatMap(request, pk):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=pk)
@@ -139,6 +148,8 @@ def dayweekHeatMap(request, pk):
     context = {'script': script, 'div': div, 'kennel':kennel}
     return render(request, 'dog/dayweekhm.html', context)
 
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def genderPlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
@@ -181,7 +192,7 @@ def genderPlot(request, pk):
     }
 
     plot = figure(x_range=items, plot_height=600, plot_width=600, title="Outcomes By Sex for " + kennel.name,
-                  toolbar_location="right", tools="wheel_zoom,box_zoom,reset, hover")
+                  toolbar_location="right", tools="wheel_zoom,box_zoom,reset, hover, save")
     plot.title.text_font_size = '20pt'
 
     plot.vbar_stack(sexes, x='items', width=0.9, color=colors, source=data, legend_label=sexes)
@@ -192,6 +203,8 @@ def genderPlot(request, pk):
 
     return render(request, 'dog/genderPlot.html', context)
 
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def outcomeHeatMap(request, pk):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=pk)
@@ -209,6 +222,8 @@ def outcomeHeatMap(request, pk):
     context = {'script': script, 'div': div, 'kennel':kennel}
     return render(request, 'dog/outcomehm.html', context)
 
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def outcomeTimePlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
@@ -219,7 +234,7 @@ def outcomeTimePlot(request, pk):
     data['created'] = data['created'].astype('datetime64[ns]')
     source = ColumnDataSource(data)
     plot = figure(plot_width=800, plot_height=400, y_range=items, x_axis_type='datetime',
-               title="Outcomes by Time and Day for " + kennel.name)
+               title="Outcomes by Time and Day for " + kennel.name, tools='save')
 
     plot.circle(x='created', y=jitter('pred_outcome', width=0.6, range=plot.y_range), source=source, alpha=0.4)
 
@@ -235,7 +250,8 @@ def outcomeTimePlot(request, pk):
 
 
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def outcomeCompare(request):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=2)
