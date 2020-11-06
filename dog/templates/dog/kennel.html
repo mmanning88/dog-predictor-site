@@ -11,7 +11,10 @@
         <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'dayweekHeatMap' kennel.id %}">Intakes by Day and Hour</a></li>
         <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'genderPlot' kennel.id %}">Outcomes by Gender</a></li>
         <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'outcomeHeatMap' kennel.id %}">Outcomes by Intake Type</a></li>
-        <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'outcomeHeatMap' kennel.id %}">Intakes by Day and Hour</a></li>
+        <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'outcomeTimePlot' kennel.id %}">Outcomes by Time</a></li>
+        {% if kennel.id == 2 %}
+        <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'outcomeCompare' %}">Predicted vs Actual Outcomes</a></li>
+        {%endif%}
     </ul>
 </div>
 <hr>

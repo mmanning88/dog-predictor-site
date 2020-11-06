@@ -2,11 +2,12 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 
+
 import numpy as np
 import pandas as pd
 from django_pandas.io import read_frame
 import holoviews as hv
-
+from sklearn.metrics import confusion_matrix
 from bootstrap_datepicker_plus import DateTimePickerInput
 
 from .forms import DogEntry, RemoveDog
@@ -18,7 +19,7 @@ from bokeh.embed import components
 from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawTool, ColumnDataSource, Select, \
     LinearColorMapper
 from bokeh.palettes import Category20c, Spectral6, Spectral4
-from bokeh.transform import cumsum, factor_cmap
+from bokeh.transform import cumsum, factor_cmap, jitter
 
 
 # Create your views here.
@@ -129,7 +130,7 @@ def dayweekHeatMap(request, pk):
     data = read_frame(dogs, fieldnames=['day', 'hour'])
     data = data.groupby(["day", "hour"]).size().reset_index(name="counts")
     hm = hv.HeatMap(data).sort()
-    hm.opts(xticks=None, colorbar=True, width=600, xlabel='Day', ylabel='Hour')
+    hm.opts(xticks=None, colorbar=True, width=600, xlabel='Day', ylabel='Hour', tools=['hover'], title="Day And Week Heatmap for " + kennel.name)
     renderer = hv.renderer('bokeh')
     plot = renderer.get_plot(hm).state
 
@@ -179,8 +180,8 @@ def genderPlot(request, pk):
         'female': [adoptions_female, transfers_female, euthanasias_female, returns_female]
     }
 
-    plot = figure(x_range=items, plot_height=600, plot_width=600, title="Dog Outcomes By Sex",
-                  toolbar_location="right", tools="pan,wheel_zoom,box_zoom,reset, hover, tap, crosshair")
+    plot = figure(x_range=items, plot_height=600, plot_width=600, title="Outcomes By Sex for " + kennel.name,
+                  toolbar_location="right", tools="wheel_zoom,box_zoom,reset, hover")
     plot.title.text_font_size = '20pt'
 
     plot.vbar_stack(sexes, x='items', width=0.9, color=colors, source=data, legend_label=sexes)
@@ -199,7 +200,8 @@ def outcomeHeatMap(request, pk):
     data = read_frame(dogs, fieldnames=['intake_type', 'pred_outcome'])
     data = data.groupby(["intake_type", "pred_outcome"]).size().reset_index(name="counts")
     hm = hv.HeatMap(data).sort()
-    hm.opts(xticks=None, colorbar=True, width=600, xlabel='Intake Type', ylabel='Predicted Outcome')
+    hm.opts(xticks=None, colorbar=True, width=600, xlabel='Intake Type', ylabel='Predicted Outcome',
+            tools=['hover'], cmap='inferno', title="Outcomes by Intake Type for " + kennel.name)
     renderer = hv.renderer('bokeh')
     plot = renderer.get_plot(hm).state
     script, div = components(plot)
@@ -211,11 +213,44 @@ def outcomeTimePlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
 
+    data = read_frame(dogs, fieldnames=['created', 'pred_outcome'])
+    items = ["Adoption", "Transfer", "Euthanasia", "Return to Owner"]
+    data['created'] = data['created'].dt.strftime('%H:%M')
+    data['created'] = data['created'].astype('datetime64[ns]')
+    source = ColumnDataSource(data)
+    plot = figure(plot_width=800, plot_height=400, y_range=items, x_axis_type='datetime',
+               title="Outcomes by Time and Day for " + kennel.name)
 
+    plot.circle(x='created', y=jitter('pred_outcome', width=0.6, range=plot.y_range), source=source, alpha=0.4)
+
+    plot.xaxis[0].formatter.days = ['%Hh']
+    plot.x_range.range_padding = 0
+    plot.ygrid.grid_line_color = None
 
     script, div = components(plot)
 
     context = {'kennel': kennel, 'script': script, 'div': div}
 
-    return render(request, 'dog/genderPlot.html', context)
+    return render(request, 'dog/outcomeTimePlot.html', context)
+
+
+
+
+def outcomeCompare(request):
+    hv.extension('bokeh')
+    kennel = Kennel.objects.get(id=2)
+    dogs = kennel.dog_set.all()
+    data = read_frame(dogs, fieldnames=['pred_outcome', 'true_outcome'])
+    data = data.groupby(["pred_outcome", "true_outcome"]).size().reset_index(name="norm")
+    a = data.groupby('pred_outcome')['norm'].transform('sum')
+    data['norm'] = data['norm'].div(a)
+    hm = hv.HeatMap(data).sort()
+    hm.opts(colorbar=True, width=600, xlabel='Predicted Outcome', ylabel='True Outcome',
+            cmap='inferno', normalize=True, tools=['hover'], title="Confusion Matrix for Historical Data")
+    renderer = hv.renderer('bokeh')
+    plot = renderer.get_plot(hm).state
+    script, div = components(plot)
+
+    context = {'script': script, 'div': div, 'kennel':kennel}
+    return render(request, 'dog/outcomehm.html', context)
 

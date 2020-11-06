@@ -15,6 +15,8 @@ urlpatterns = [
     path('kennel/genderplot/<str:pk>', views.genderPlot, name="genderPlot"),
     path('kennel/dayweekhm/<str:pk>', views.dayweekHeatMap, name="dayweekHeatMap"),
     path('kennel/outcomehm/<str:pk>', views.outcomeHeatMap, name="outcomeHeatMap"),
+    path('kennel/outcometimeplot/<str:pk>', views.outcomeTimePlot, name="outcomeTimePlot"),
+    path('kennel/outcomecompare', views.outcomeCompare, name="outcomeCompare"),
 
     path('', views.home, name="home"),
 

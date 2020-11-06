@@ -5,10 +5,14 @@
 <a class="btn btn-info  btn-sm btn-block"
    href="/kennel">Back to Kennel Graphs</a>
 
-<h1>Heatmap for {{kennel.name}} kennel</h1>
+
+<div class="card">
+  <div class="card-body">
 
     {{div | safe}}
 
 
     {{script | safe}}
+  </div>
+</div>
 {% endblock %}
