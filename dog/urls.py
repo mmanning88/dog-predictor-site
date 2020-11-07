@@ -6,10 +6,13 @@ urlpatterns = [
     path('login/', views.loginPage, name="login"),
     path('logout/', views.logoutUser, name="logout"),
 
-    path('entry/', views.entry, name="entry"),
+    path('kennelselect/', views.kennelSelect, name="kennelSelect"),
+
+
     path('update/<str:pk>', views.updateDog, name="update"),
     path('remove/<str:pk>', views.removeDog, name="remove"),
     path('delete/<str:pk>', views.deleteDog, name="delete"),
+    path('entry/', views.entry, name="entry"),
     path('kennel/', views.kennel, name="kennel"),
 
     path('kennel/genderplot/<str:pk>', views.genderPlot, name="genderPlot"),
@@ -18,6 +21,6 @@ urlpatterns = [
     path('kennel/outcometimeplot/<str:pk>', views.outcomeTimePlot, name="outcomeTimePlot"),
     path('kennel/outcomecompare', views.outcomeCompare, name="outcomeCompare"),
 
-    path('', views.home, name="home"),
+    path('<str:name>/home', views.kennelHome, name="kennelHome"),
 
 ]

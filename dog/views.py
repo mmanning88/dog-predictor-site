@@ -1,22 +1,25 @@
+from math import pi
+
+from bokeh.layouts import row
+from bokeh.palettes import Category20c
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 
 from django_pandas.io import read_frame
 
 import holoviews as hv
 
-
 from .forms import DogEntry, RemoveDog
 from .models import *
 from .decorators import *
 
-
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models import ColumnDataSource
-from bokeh.transform import jitter
+from bokeh.transform import jitter, cumsum
 
 
 # Create your views here.
@@ -30,7 +33,7 @@ def loginPage(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('kennelselect')
         else:
             messages.info(request, "Username or password is incorrect")
 
@@ -42,34 +45,134 @@ def logoutUser(request):
     logout(request)
     return redirect('login')
 
-@login_required(login_url='login')
-def home(request):
-    dogs = Dog.objects.all()
+
+def kennelSelect(request):
+    kennels = Kennel.objects.all()
+
+    context = {'kennels': kennels}
+    return render(request, 'dog/kennelselect.html', context)
+
+
+def kennelHome(request, name):
+    kennel = Kennel.objects.get(name=name)
+    dogs = kennel.dog_set.all()
+    adoptions_p = 0
+    transfers_p = 0
+    euthanasias_p = 0
+    returns_p = 0
+    adoptions_t = 0
+    transfers_t = 0
+    euthanasias_t = 0
+    returns_t = 0
     for dog in dogs:
         if dog.pred_outcome == 'No Outcome':
             dog.pred_outcome = dog.predictOutcome
-    kennels = Kennel.objects.all()
+        elif dog.pred_outcome == 'Adoption':
+            adoptions_p += 1
+        elif dog.pred_outcome == 'Transfer':
+            transfers_p += 1
+        elif dog.pred_outcome == 'Euthanasia':
+            euthanasias_p += 1
+        elif dog.pred_outcome == 'Return to Owner':
+            returns_p += 1
+        if kennel.id == 2:
+            if dog.true_outcome == 'Adoption':
+                adoptions_t += 1
+            elif dog.true_outcome == 'Transfer':
+                transfers_t += 1
+            elif dog.true_outcome == 'Euthanasia':
+                euthanasias_t += 1
+            elif dog.true_outcome == 'Return to Owner':
+                returns_t += 1
+    x = {
+        'Adoption': adoptions_p,
+        'Transfer': transfers_p,
+        'Euthanasia': euthanasias_p,
+        'Return to Owner': returns_p,
+    }
 
-    context = {'dogs': dogs, 'kennels': kennels}
+    data = pd.Series(x).reset_index(name='value').rename(columns={'index': 'outcome'})
+    data['angle'] = data['value'] / data['value'].sum() * 2 * pi
+    data['color'] = Category20c[len(x)]
 
-    return render(request, 'dog/home.html', context)
+    plot = figure(plot_height=350, plot_width=400, title="Total Number of Predicted Outcomes for Kennel",
+                  toolbar_location=None,
+                  tools="hover", tooltips="@outcome: @value", x_range=(-0.5, 1.0))
 
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+    plot.wedge(x=0, y=1, radius=0.4,
+               start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
+               line_color="white", fill_color='color', legend_field='outcome', source=data)
+
+    plot.axis.axis_label = None
+    plot.axis.visible = False
+    plot.grid.grid_line_color = None
+
+    # True outcome plot only created when kennel is historical outcomes
+    if kennel.id == 2:
+        x2 = {
+            'Adoption': adoptions_t,
+            'Transfer': transfers_t,
+            'Euthanasia': euthanasias_t,
+            'Return to Owner': returns_t,
+        }
+
+        data = pd.Series(x2).reset_index(name='value').rename(columns={'index': 'outcome'})
+        data['angle'] = data['value'] / data['value'].sum() * 2 * pi
+        data['color'] = Category20c[len(x)]
+
+        plot2 = figure(plot_height=350, plot_width=400, title="Total Number of True Outcomes for Kennel",
+                       toolbar_location=None,
+                       tools="hover", tooltips="@outcome: @value", x_range=(-0.5, 1.0))
+
+        plot2.wedge(x=0, y=1, radius=0.4,
+                    start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
+                    line_color="white", fill_color='color', legend_field='outcome', source=data)
+
+        plot2.axis.axis_label = None
+        plot2.axis.visible = False
+        plot2.grid.grid_line_color = None
+
+    if kennel.id == 2:
+        script, div = components(row(plot, plot2))
+    else:
+        script, div = components(plot)
+    context = {'dogs': dogs, 'kennel': kennel, 'script': script, 'div': div, }
+
+    return render(request, 'dog/kennelhome.html', context)
+
+
+# @login_required(login_url='login')
+# def home(request):
+#     dogs = Dog.objects.all()
+#     for dog in dogs:
+#         if dog.pred_outcome == 'No Outcome':
+#             dog.pred_outcome = dog.predictOutcome
+#     kennels = Kennel.objects.all()
+#
+#     context = {'dogs': dogs, 'kennels': kennels}
+#
+#     return render(request, 'dog/kennelhome.html', context)
+
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
+
 def entry(request):
     form = DogEntry()
+    kennels = Kennel.objects.all()
     if request.method == 'POST':
         form = DogEntry(request.POST, instance=Dog())
         if form.is_valid():
-            form.save()
-            return redirect('home')
+            new_dog = form.save()
+            kennel_name = new_dog.kennel.name
+            return redirect('kennelHome', name=kennel_name)
 
-    context = {'form': form}
+    context = {'form': form, 'kennels': kennels}
 
     return render(request, 'dog/entry.html', context)
 
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
 def updateDog(request, pk):
     dog = Dog.objects.get(id=pk)
     form = DogEntry(instance=dog)
@@ -79,13 +182,15 @@ def updateDog(request, pk):
     if request.method == 'POST':
         form = DogEntry(request.POST, instance=dog)
         if form.is_valid():
+            kennelName = dog.kennel.name
             form.save()
-            return redirect('/')
+            return redirect('kennelHome', name=kennelName)
 
     return render(request, 'dog/entry.html', context)
 
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
 def removeDog(request, pk):
     dog = Dog.objects.get(id=pk)
     kennels = Kennel.objects.all()
@@ -96,37 +201,42 @@ def removeDog(request, pk):
     if request.method == 'POST':
         form = RemoveDog(request.POST, instance=dog)
         if form.is_valid():
+            kennelName = dog.kennel.name
             dog.kennel = kennels.get(name='Historical Outcomes')
             form.save()
-            return redirect('/')
+            return redirect('kennelHome', name=kennelName)
 
     return render(request, 'dog/remove.html', context)
 
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
 def deleteDog(request, pk):
     dog = Dog.objects.get(id=pk)
+    kennel = dog.kennel
 
-    context = {'dog': dog}
+    context = {'dog': dog, 'kennel':kennel}
 
     if request.method == 'POST':
+        kennelName = dog.kennel.name
         dog.delete()
-        return redirect('/')
+        return redirect('kennelHome', name=kennelName)
 
     return render(request, 'dog/delete.html', context)
 
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
 def kennel(request):
     kennels = Kennel.objects.all()
-
 
     context = {'kennels': kennels}
 
     return render(request, 'dog/kennel.html', context)
 
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
 def dayweekHeatMap(request, pk):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=pk)
@@ -135,17 +245,19 @@ def dayweekHeatMap(request, pk):
     data = read_frame(dogs, fieldnames=['day', 'hour'])
     data = data.groupby(["day", "hour"]).size().reset_index(name="counts")
     hm = hv.HeatMap(data).sort()
-    hm.opts(xticks=None, colorbar=True, width=600, xlabel='Day', ylabel='Hour', tools=['hover'], title="Day And Week Heatmap for " + kennel.name)
+    hm.opts(xticks=None, colorbar=True, width=600, xlabel='Day', ylabel='Hour', tools=['hover'],
+            title="Day And Week Heatmap for " + kennel.name)
     renderer = hv.renderer('bokeh')
     plot = renderer.get_plot(hm).state
 
     script, div = components(plot)
 
-    context = {'script': script, 'div': div, 'kennel':kennel}
+    context = {'script': script, 'div': div, 'kennel': kennel}
     return render(request, 'dog/dayweekhm.html', context)
 
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
 def genderPlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
@@ -199,8 +311,9 @@ def genderPlot(request, pk):
 
     return render(request, 'dog/genderPlot.html', context)
 
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
 def outcomeHeatMap(request, pk):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=pk)
@@ -215,11 +328,12 @@ def outcomeHeatMap(request, pk):
     plot = renderer.get_plot(hm).state
     script, div = components(plot)
 
-    context = {'script': script, 'div': div, 'kennel':kennel}
+    context = {'script': script, 'div': div, 'kennel': kennel}
     return render(request, 'dog/outcomehm.html', context)
 
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
 def outcomeTimePlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
@@ -230,7 +344,7 @@ def outcomeTimePlot(request, pk):
     data['created'] = data['created'].astype('datetime64[ns]')
     source = ColumnDataSource(data)
     plot = figure(plot_width=800, plot_height=400, y_range=items, x_axis_type='datetime',
-               title="Outcomes by Time and Day for " + kennel.name, tools='save')
+                  title="Outcomes by Time and Day for " + kennel.name, tools='save')
 
     plot.circle(x='created', y=jitter('pred_outcome', width=0.6, range=plot.y_range), source=source, alpha=0.4)
 
@@ -245,9 +359,8 @@ def outcomeTimePlot(request, pk):
     return render(request, 'dog/outcomeTimePlot.html', context)
 
 
-
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
+# @login_required(login_url='login')
+# @allowed_users(allowed_roles=['operator'])
 def outcomeCompare(request):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=2)
@@ -263,6 +376,5 @@ def outcomeCompare(request):
     plot = renderer.get_plot(hm).state
     script, div = components(plot)
 
-    context = {'script': script, 'div': div, 'kennel':kennel}
+    context = {'script': script, 'div': div, 'kennel': kennel}
     return render(request, 'dog/outcomehm.html', context)
-

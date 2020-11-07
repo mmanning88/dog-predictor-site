@@ -2,15 +2,17 @@
 
 {% block content %}
 
-<h2>Welcome to the Animal Shelter Outcome Predictor</h2>
-
-{% for kennel in kennels %}
-
 <div class="row">
     <div class="col-lg-12">
         <div class="card card-body">
             <h5>Kennel Name: {{kennel.name}}</h5>
-            <table class="table table-md">
+            <div>
+                {{div | safe}}
+
+
+                {{script | safe}}
+            </div>
+            <table class="table table-sm">
                 <tr>
                     <th>ID</th>
                     <th>Age</th>
@@ -48,10 +50,10 @@
             </table>
             {% if kennel.id == 2 %}
             <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
-               href="{% url 'kennel' %}">Kennel Analysis</a>
+               href="{% url 'entry' %}">Kennel Analysis</a>
             {% else %}
             <a title="Add a new dog to {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
-               href="/entry">Add Dog to Kennel</a>
+               href="{% url 'entry' %}">Add Dog to Kennel</a>
             <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
                href="{% url 'kennel' %}">Kennel Analysis</a>
             {% endif %}
@@ -60,6 +62,5 @@
     </div>
 </div>
 
-{% endfor %}
 
 {% endblock %}
