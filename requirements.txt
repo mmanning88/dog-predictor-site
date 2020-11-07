@@ -3,7 +3,10 @@ dj_database_url==0.5.0
 bokeh==2.2.3
 Django==3.1.2
 numpy==1.19.2
+bootstrap4==0.1.0
+django-bootstrap4==2.3.1
 django_pandas==0.6.2
+django-bootstrap-datepicker-plus==3.0.5
 joblib==0.17.0
 holoviews==1.13.5
 python-dotenv==0.15.0
