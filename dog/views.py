@@ -1,26 +1,22 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
-import numpy as np
-import pandas as pd
 from django_pandas.io import read_frame
+
 import holoviews as hv
-from sklearn.metrics import confusion_matrix
-from bootstrap_datepicker_plus import DateTimePickerInput
+
 
 from .forms import DogEntry, RemoveDog
 from .models import *
 from .decorators import *
 
-from django.shortcuts import render
+
 from bokeh.plotting import figure
 from bokeh.embed import components
-from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawTool, ColumnDataSource, Select, \
-    LinearColorMapper
-from bokeh.palettes import Category20c, Spectral6, Spectral4
-from bokeh.transform import cumsum, factor_cmap, jitter
+from bokeh.models import ColumnDataSource
+from bokeh.transform import jitter
 
 
 # Create your views here.

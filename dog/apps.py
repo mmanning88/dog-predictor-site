@@ -8,7 +8,8 @@ import pandas as pd
 class DogConfig(AppConfig):
     name = 'dog'
 
-
+# Main prediction algorithm to classify all dogs with a predicted outcome
+# If model is updated than column transformer and bins maybe need to be updated as well
 class PredictorConfig(AppConfig):
 
     path = Path.joinpath(settings.MODEL_URL, 'primary_model.pkl')

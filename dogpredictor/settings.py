@@ -28,7 +28,7 @@ if os.path.isfile(dotenv_file):
 SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -134,3 +134,7 @@ STATICFILES_DIRS = [
 ]
 
 MODEL_URL = BASE_DIR.joinpath('static/ML')
+
+# Setup Django App for Heroku deployment
+import django_heroku
+django_heroku.settings(locals())
