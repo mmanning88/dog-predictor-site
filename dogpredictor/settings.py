@@ -136,5 +136,5 @@ STATICFILES_DIRS = [
 MODEL_URL = BASE_DIR.joinpath('static/ML')
 
 # Setup Django App for Heroku deployment
-import django_heroku
-django_heroku.settings(locals())
+# import django_heroku
+# django_heroku.settings(locals())
