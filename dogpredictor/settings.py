@@ -28,8 +28,9 @@ if os.path.isfile(dotenv_file):
 SECRET_KEY = os.environ.get('SECRET_KEY', "00000")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-ALLOWED_HOSTS = ['ancient-hollows-48077.herokuapp.com']
+DEBUG = True
+# 'ancient-hollows-48077.herokuapp.com'
+ALLOWED_HOSTS = []
 
 # Application definition
 
