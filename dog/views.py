@@ -33,7 +33,7 @@ def loginPage(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('kennelselect')
+            return redirect('kennelSelect')
         else:
             messages.info(request, "Username or password is incorrect")
 
@@ -45,14 +45,15 @@ def logoutUser(request):
     logout(request)
     return redirect('login')
 
-
+@login_required(login_url='login')
 def kennelSelect(request):
     kennels = Kennel.objects.all()
 
     context = {'kennels': kennels}
     return render(request, 'dog/kennelselect.html', context)
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def kennelHome(request, name):
     kennel = Kennel.objects.get(name=name)
     dogs = kennel.dog_set.all()
@@ -143,8 +144,8 @@ def kennelHome(request, name):
     return render(request, 'dog/kennelhome.html', context)
 
 
-# @login_required(login_url='login')
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def entry(request):
     form = DogEntry()
     kennels = Kennel.objects.all()
@@ -160,8 +161,8 @@ def entry(request):
     return render(request, 'dog/entry.html', context)
 
 
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def updateDog(request, pk):
     dog = Dog.objects.get(id=pk)
     form = DogEntry(instance=dog)
@@ -178,8 +179,8 @@ def updateDog(request, pk):
     return render(request, 'dog/entry.html', context)
 
 
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def removeDog(request, pk):
     dog = Dog.objects.get(id=pk)
     kennels = Kennel.objects.all()
@@ -198,8 +199,8 @@ def removeDog(request, pk):
     return render(request, 'dog/remove.html', context)
 
 
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def deleteDog(request, pk):
     dog = Dog.objects.get(id=pk)
     kennel = dog.kennel
@@ -214,18 +215,8 @@ def deleteDog(request, pk):
     return render(request, 'dog/delete.html', context)
 
 
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
-def kennel(request):
-    kennels = Kennel.objects.all()
-
-    context = {'kennels': kennels}
-
-    return render(request, 'dog/kennel.html', context)
-
-
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def dayweekHeatMap(request, pk):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=pk)
@@ -245,8 +236,8 @@ def dayweekHeatMap(request, pk):
     return render(request, 'dog/dayweekhm.html', context)
 
 
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def genderPlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
@@ -301,8 +292,8 @@ def genderPlot(request, pk):
     return render(request, 'dog/genderPlot.html', context)
 
 
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def outcomeHeatMap(request, pk):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=pk)
@@ -321,8 +312,8 @@ def outcomeHeatMap(request, pk):
     return render(request, 'dog/outcomehm.html', context)
 
 
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def outcomeTimePlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
 
@@ -356,8 +347,8 @@ def outcomeTimePlot(request, pk):
     return render(request, 'dog/outcomeTimePlot.html', context)
 
 
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
 def outcomeCompare(request):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=2)
