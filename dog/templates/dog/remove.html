@@ -22,7 +22,7 @@
 				{{dog.pred_outcome}}
 				<hr>
                 {% endfor %}
-				<a class="btn btn-warning" href="{% url 'kennelHome' kennel.name %}">Cancel</a>
+				<a class="btn btn-warning" href="{% url 'kennelHome' dog.kennel.name %}">Cancel</a>
 
 				<input class="btn btn-danger" type="submit" name="Confirm">
 			</form>

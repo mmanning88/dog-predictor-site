@@ -185,13 +185,13 @@ def removeDog(request, pk):
     dog = Dog.objects.get(id=pk)
     kennels = Kennel.objects.all()
     form = RemoveDog(instance=dog)
-
+    kennelName = dog.kennel.name
     context = {'dog': dog, 'kennels': kennels, 'form': form}
 
     if request.method == 'POST':
         form = RemoveDog(request.POST, instance=dog)
         if form.is_valid():
-            kennelName = dog.kennel.name
+
             dog.kennel = kennels.get(name='Historical Outcomes')
             form.save()
             return redirect('kennelHome', name=kennelName)
