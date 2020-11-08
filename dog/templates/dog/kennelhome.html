@@ -1,7 +1,8 @@
 {% extends 'dog/main.html' %}
 
 {% block content %}
-
+<a class="btn btn-sm btn-info" href="{% url 'kennelSelect'  %}">Back to Kennel Select</a>
+<hr>
 <div class="row">
     <div class="col-lg-12">
         <div class="card card-body">
@@ -48,19 +49,36 @@
                     {% endif %}
                 {% endfor %}
             </table>
+            <h4 class="text-center">Kennel Options and Graphs</h4>
             {% if kennel.id == 2 %}
-            <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
-               href="{% url 'entry' %}">Kennel Analysis</a>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block"
+                                               href="{% url 'dayweekHeatMap' kennel.id %}">Intakes by Day and Hour</a></li>
+                <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block"
+                                               href="{% url 'genderPlot' kennel.id %}">Outcomes by Gender</a></li>
+                <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block"
+                                               href="{% url 'outcomeHeatMap' kennel.id %}">Outcomes by Intake Type</a></li>
+                <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block"
+                                               href="{% url 'outcomeTimePlot' kennel.id %}">Outcomes by Time</a></li>
+                <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block"
+                                               href="{% url 'outcomeCompare' %}">Predicted vs Actual Outcomes</a></li>
+            </ul>
             {% else %}
             <a title="Add a new dog to {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
                href="{% url 'entry' %}">Add Dog to Kennel</a>
-            <a title="Trends and Prediction Trends for {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
-               href="{% url 'kennel' %}">Kennel Analysis</a>
             {% endif %}
 
         </div>
     </div>
 </div>
-
+<!--<ul class="list-group list-group-flush">-->
+<!--        <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'dayweekHeatMap' kennel.id %}">Intakes by Day and Hour</a></li>-->
+<!--        <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'genderPlot' kennel.id %}">Outcomes by Gender</a></li>-->
+<!--        <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'outcomeHeatMap' kennel.id %}">Outcomes by Intake Type</a></li>-->
+<!--        <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'outcomeTimePlot' kennel.id %}">Outcomes by Time</a></li>-->
+<!--        {% if kennel.id == 2 %}-->
+<!--        <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block" href="{% url 'outcomeCompare' %}">Predicted vs Actual Outcomes</a></li>-->
+<!--        {%endif%}-->
+<!--    </ul>-->
 
 {% endblock %}

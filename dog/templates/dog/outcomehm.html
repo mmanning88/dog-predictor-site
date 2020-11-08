@@ -1,9 +1,5 @@
 {% extends 'dog/main.html' %}
 {% block content %}
-<a class="btn btn-info  btn-sm btn-block"
-   href="/">Back to Main Page</a>
-<a class="btn btn-info  btn-sm btn-block"
-   href="/kennel">Back to Kennel Graphs</a>
 
 
 <div class="card">
@@ -13,6 +9,7 @@
 
 
     {{script | safe}}
+    <a class="btn btn-sm btn-info" href="{% url 'kennelHome' kennel.name %}">Back to Kennel Dashboard</a>
   </div>
 </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 from math import pi
 
 from bokeh.layouts import row
-from bokeh.palettes import Category20c
+from bokeh.palettes import Category20c, Spectral4, brewer, d3
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -19,7 +19,7 @@ from .decorators import *
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models import ColumnDataSource
-from bokeh.transform import jitter, cumsum
+from bokeh.transform import jitter, cumsum, factor_cmap
 
 
 # Create your views here.
@@ -336,17 +336,25 @@ def outcomeHeatMap(request, pk):
 # @allowed_users(allowed_roles=['operator'])
 def outcomeTimePlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
-    dogs = kennel.dog_set.all()
 
-    data = read_frame(dogs, fieldnames=['created', 'pred_outcome'])
+    dogs = kennel.dog_set.all()
+    kennel_string = 'true_outcome'
+    if kennel.id != 2:
+        kennel_string = 'pred_outcome'
+
+    # Extract Hour and Minutes from creation date and set type as datetime
+    data = read_frame(dogs, fieldnames=['created', kennel_string])
     items = ["Adoption", "Transfer", "Euthanasia", "Return to Owner"]
     data['created'] = data['created'].dt.strftime('%H:%M')
     data['created'] = data['created'].astype('datetime64[ns]')
-    source = ColumnDataSource(data)
-    plot = figure(plot_width=800, plot_height=400, y_range=items, x_axis_type='datetime',
-                  title="Outcomes by Time and Day for " + kennel.name, tools='save')
 
-    plot.circle(x='created', y=jitter('pred_outcome', width=0.6, range=plot.y_range), source=source, alpha=0.4)
+
+    source = ColumnDataSource(data)
+    plot = figure(plot_width=800, plot_height=350, y_range=items, x_axis_type='datetime',
+                  title="Outcomes by Time and Day for " + kennel.name, tools='save, hover')
+
+
+    plot.circle(x='created', y=jitter(kennel_string, width=0.7, range=plot.y_range), fill_color="navy", source=source, alpha=0.4)
 
     plot.xaxis[0].formatter.days = ['%Hh']
     plot.x_range.range_padding = 0
