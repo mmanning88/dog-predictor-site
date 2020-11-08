@@ -11,7 +11,7 @@ django-bootstrap-datepicker-plus==3.0.5
 django-heroku==0.3.1
 joblib==0.17.0
 holoviews==1.13.5
-python-dotenv==0.15.0
+python-dotenv==0.14.0
 psycopg2==2.8.6
 gunicorn==20.0.4
 whitenoise==5.2.0

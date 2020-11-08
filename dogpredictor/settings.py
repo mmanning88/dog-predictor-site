@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import dotenv
 import os
+import dj_database_url
+import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -83,15 +85,10 @@ WSGI_APPLICATION = 'dogpredictor.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+DATABASES = {}
+DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
 # Heroku: Update database configuration from $DATABASE_URL.
-import dj_database_url
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
 
@@ -133,9 +130,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-# Setup Django App for Heroku deployment
-# import django_heroku
-# django_heroku.settings(locals())
 
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
@@ -151,5 +145,9 @@ STATICFILES_DIRS = [
 
 MODEL_URL = BASE_DIR.joinpath('static/ML')
 
+# Setup Django App for Heroku deployment
+django_heroku.settings(locals())
 
-
+# Drop SSL for sqlite
+options = DATABASES['default'].get('OPTIONS', {})
+options.pop('sslmode', None)
