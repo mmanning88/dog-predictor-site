@@ -64,7 +64,7 @@ def kennelHome(request, name):
     transfers_t = 0
     euthanasias_t = 0
     returns_t = 0
-    for dog in dogs:
+    for dog in dogs.iterator():
         if dog.pred_outcome == 'No Outcome':
             dog.pred_outcome = dog.predictOutcome
         elif dog.pred_outcome == 'Adoption':
@@ -84,6 +84,8 @@ def kennelHome(request, name):
                 euthanasias_t += 1
             elif dog.true_outcome == 'Return to Owner':
                 returns_t += 1
+
+
     x = {
         'Adoption': adoptions_p,
         'Transfer': transfers_p,
@@ -142,19 +144,6 @@ def kennelHome(request, name):
 
 
 # @login_required(login_url='login')
-# def home(request):
-#     dogs = Dog.objects.all()
-#     for dog in dogs:
-#         if dog.pred_outcome == 'No Outcome':
-#             dog.pred_outcome = dog.predictOutcome
-#     kennels = Kennel.objects.all()
-#
-#     context = {'dogs': dogs, 'kennels': kennels}
-#
-#     return render(request, 'dog/kennelhome.html', context)
-
-# @login_required(login_url='login')
-# @allowed_users(allowed_roles=['operator'])
 
 def entry(request):
     form = DogEntry()

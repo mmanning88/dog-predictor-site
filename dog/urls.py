@@ -13,7 +13,6 @@ urlpatterns = [
     path('remove/<str:pk>', views.removeDog, name="remove"),
     path('delete/<str:pk>', views.deleteDog, name="delete"),
     path('entry/', views.entry, name="entry"),
-    path('kennel/', views.kennel, name="kennel"),
 
     path('kennel/genderplot/<str:pk>', views.genderPlot, name="genderPlot"),
     path('kennel/dayweekhm/<str:pk>', views.dayweekHeatMap, name="dayweekHeatMap"),
