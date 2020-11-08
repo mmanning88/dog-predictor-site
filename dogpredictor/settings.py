@@ -28,7 +28,7 @@ if os.path.isfile(dotenv_file):
 SECRET_KEY = os.environ.get('SECRET_KEY', "00000")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['ancient-hollows-48077.herokuapp.com']
 
@@ -130,6 +130,10 @@ USE_TZ = True
 # import django_heroku
 # django_heroku.settings(locals())
 
+
+# The absolute path to the directory where collectstatic will collect static files for deployment.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/images/'
@@ -137,10 +141,6 @@ MEDIA_URL = '/images/'
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
-
-# The absolute path to the directory where collectstatic will collect static files for deployment.
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
 
 MODEL_URL = BASE_DIR.joinpath('static/ML')
 

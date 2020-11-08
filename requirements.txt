@@ -4,6 +4,7 @@ bokeh==2.2.3
 Django==3.1.2
 numpy==1.19.2
 bootstrap4==0.1.0
+dj-database-url==0.5.0
 django-bootstrap4==2.3.1
 django_pandas==0.6.2
 django-bootstrap-datepicker-plus==3.0.5
