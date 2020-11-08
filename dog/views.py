@@ -65,26 +65,27 @@ def kennelHome(request, name):
     transfers_t = 0
     euthanasias_t = 0
     returns_t = 0
-    for dog in dogs.iterator():
-        if dog.pred_outcome == 'No Outcome':
-            dog.pred_outcome = dog.predictOutcome
-        elif dog.pred_outcome == 'Adoption':
-            adoptions_p += 1
-        elif dog.pred_outcome == 'Transfer':
-            transfers_p += 1
-        elif dog.pred_outcome == 'Euthanasia':
-            euthanasias_p += 1
-        elif dog.pred_outcome == 'Return to Owner':
-            returns_p += 1
-        if kennel.id == 2:
-            if dog.true_outcome == 'Adoption':
-                adoptions_t += 1
-            elif dog.true_outcome == 'Transfer':
-                transfers_t += 1
-            elif dog.true_outcome == 'Euthanasia':
-                euthanasias_t += 1
-            elif dog.true_outcome == 'Return to Owner':
-                returns_t += 1
+    if dogs:
+        for dog in dogs.iterator():
+            if dog.pred_outcome == 'No Outcome':
+                dog.pred_outcome = dog.predictOutcome
+            elif dog.pred_outcome == 'Adoption':
+                adoptions_p += 1
+            elif dog.pred_outcome == 'Transfer':
+                transfers_p += 1
+            elif dog.pred_outcome == 'Euthanasia':
+                euthanasias_p += 1
+            elif dog.pred_outcome == 'Return to Owner':
+                returns_p += 1
+            if kennel.id == 2:
+                if dog.true_outcome == 'Adoption':
+                    adoptions_t += 1
+                elif dog.true_outcome == 'Transfer':
+                    transfers_t += 1
+                elif dog.true_outcome == 'Euthanasia':
+                    euthanasias_t += 1
+                elif dog.true_outcome == 'Return to Owner':
+                    returns_t += 1
 
 
     x = {
