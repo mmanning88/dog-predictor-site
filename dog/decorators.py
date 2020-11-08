@@ -16,7 +16,7 @@ def allowed_users(allowed_roles=[]):
     def decorator(view_func):
         def wrapper_func(request, *args, **kwargs):
 
-            groups = None
+            groups = []
             if request.user.groups.exists():
                 groups = request.user.groups.all()
             for group in groups:
