@@ -126,6 +126,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+# Setup Django App for Heroku deployment
+import django_heroku
+django_heroku.settings(locals())
+
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/images/'
@@ -145,6 +149,3 @@ import dj_database_url
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
 
-# Setup Django App for Heroku deployment
-import django_heroku
-django_heroku.settings(locals())
