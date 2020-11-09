@@ -3,6 +3,32 @@
 {% block content %}
 <a class="btn btn-sm btn-info" href="{% url 'kennelSelect'  %}">Back to Kennel Select</a>
 <hr>
+  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    Guide
+  </button>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+
+        <p>This dashboard shows the current occupants of the kennel, the predicted outcome is this product's prediction on what
+            would happen to each dog if they left the shelter at the current time.</p>
+        <hr>
+        <p>Here is an explanation of each potential outcome:</p>
+        <ul>
+            <li>Adoption: The dog is adopted to a person</li>
+            <li>Transfer: The dog is moved to a different shelter or partner for purposes of increasing adoption chance
+                or because they are better equipped for this dog</li>
+            <li>Return to Owner: The dog is is a lost stray and was successfully reunited with their owner</li>
+            <li>Euthanasia: The dog was put down, usually for behavioral or medical issues</li>
+        </ul>
+
+      {% if kennel.name == "Historical Outcomes" %}
+        <p>This is a historical outcome and has more information. Please note dogs can not be checked out of historical kennel</p>
+        <ul>
+            <li>True outcome: This is the result that actually happened to the dog.</li>
+        </ul>
+      {% endif %}
+  </div>
+</div>
 <div class="row">
     <div class="col-lg-12">
         <div class="card card-body">
@@ -41,7 +67,7 @@
                             {% endif %}
                             <td><a class="btn btn-sm btn-info" title="Update dog info" href="{% url 'update' dog.id %}">Update</a></td>
                             {% if kennel.id != 2 %}
-                            <td><a class="btn btn-sm btn-danger" title="Check out dog from kennel" href="{% url 'remove' dog.id %}">Remove</a></td>
+                            <td><a class="btn btn-sm btn-danger" title="Check out dog from kennel" href="{% url 'remove' dog.id %}">Check Out</a></td>
                             {% endif %}
                             <td><a class="btn btn-sm btn-danger" title="Remove dog from database" href="{% url 'delete' dog.id %}">Delete</a></td>
 
