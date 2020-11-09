@@ -1,3 +1,3 @@
 web: gunicorn dogpredictor.wsgi
-python manage.py collectstatic
-python manage.py migrate
+python3 manage.py collectstatic --no-input
+python3 manage.py migrate
