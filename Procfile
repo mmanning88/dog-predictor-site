@@ -1,3 +1,3 @@
-web: gunicorn dogpredictor.wsgi:application --log-file - --log-level debug
-python manage.py collectstatic --noinput
+web: gunicorn dogpredictor.wsgi
+python manage.py collectstatic
 python manage.py migrate
