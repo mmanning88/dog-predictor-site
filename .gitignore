@@ -4,3 +4,4 @@
 
 # Database
 *.sqlite3'.env' 
+/staticfiles/
