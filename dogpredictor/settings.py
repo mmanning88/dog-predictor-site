@@ -31,8 +31,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', "00000")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-# 'ancient-hollows-48077.herokuapp.com'
-ALLOWED_HOSTS = []
+#
+ALLOWED_HOSTS = ['ancient-hollows-48077.herokuapp.com']
 
 # Application definition
 

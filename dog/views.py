@@ -290,7 +290,7 @@ def genderPlot(request, pk):
 
     context = {'kennel': kennel, 'dogs': dogs, 'script': script, 'div': div}
 
-    return render(request, 'dog/genderPlot.html', context)
+    return render(request, 'dog/genderplot.html', context)
 
 
 @login_required(login_url='login')
@@ -345,7 +345,7 @@ def outcomeTimePlot(request, pk):
 
     context = {'kennel': kennel, 'script': script, 'div': div}
 
-    return render(request, 'dog/outcomeTimePlot.html', context)
+    return render(request, 'dog/outcometimeplot.html', context)
 
 
 @login_required(login_url='login')
