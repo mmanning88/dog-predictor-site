@@ -1,3 +1,4 @@
+import csv, io
 from math import pi
 
 from bokeh.layouts import row
@@ -6,7 +7,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.utils import timezone
+from django.http import HttpResponseRedirect, JsonResponse
 
 from django_pandas.io import read_frame
 
@@ -57,6 +59,9 @@ def kennelSelect(request):
 def kennelHome(request, name):
     kennel = Kennel.objects.get(name=name)
     dogs = kennel.dog_set.all()
+    for dog in dogs:
+        if dog.pred_outcome == 'None':
+            dog.save()
     adoptions_p = 0
     transfers_p = 0
     euthanasias_p = 0
@@ -67,9 +72,7 @@ def kennelHome(request, name):
     returns_t = 0
     if dogs:
         for dog in dogs.iterator():
-            if dog.pred_outcome == 'No Outcome':
-                dog.pred_outcome = dog.predictOutcome
-            elif dog.pred_outcome == 'Adoption':
+            if dog.pred_outcome == 'Adoption':
                 adoptions_p += 1
             elif dog.pred_outcome == 'Transfer':
                 transfers_p += 1
@@ -161,6 +164,49 @@ def entry(request):
 
     return render(request, 'dog/entry.html', context)
 
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
+def uploadDogs(request, pk):
+    kennel = Kennel.objects.get(id=pk)
+
+    context = {'kennel': kennel}
+
+    if request.method == 'GET':
+        return render(request, 'dog/uploaddogs.html', context)
+
+    paramFile = io.TextIOWrapper(request.FILES['dogfile'].file)
+    df = pd.read_csv(paramFile)
+    row_iter = df.iterrows()
+
+    objs = [
+        Dog(
+            sex=row['sex'],
+            fixed=row['fixed'],
+            breed=row['breed'],
+            condition=row['condition'],
+            intake_type=row['intake_type'],
+            coat_pattern=row['coat_pattern'],
+            primary_color=row['primary_color'],
+            age=row['age'],
+            mixed=row['mixed'],
+            puppy=row['puppy'],
+            bully=row['bully'],
+            kennel=kennel
+        )
+        for index, row in row_iter
+    ]
+
+    try:
+        msg = Dog.objects.bulk_create(objs)
+        print('imported successfully')
+    except Exception as e:
+        print('Error While Importing Data: ', e)
+
+
+
+    context = {'kennel': kennel}
+
+    return render(request, 'dog/uploaddogs.html', context)
 
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['operator'])

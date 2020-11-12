@@ -1,0 +1,17 @@
+{% extends 'dog/main.html' %}
+{% block content %}
+
+
+<div class="card">
+  <div class="card-body">
+
+    <h4>Import Dogs</h4>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="dogfile">
+        <button type="submit">Upload</button>
+      </form>
+    <a class="btn btn-sm btn-info" href="{% url 'kennelHome' kennel.name %}">Back to Kennel Dashboard</a>
+  </div>
+</div>
+{% endblock %}

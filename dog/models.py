@@ -30,8 +30,8 @@ class Outcome(models.Model):
 
 class Dog(models.Model):
     SEX = (
-        ('Male', 'M'),
-        ('Female', 'F')
+        ('Male', 'Male'),
+        ('Female', 'Female')
     )
     sex = models.CharField(max_length=10, choices=SEX, null=False)
     fixed = models.BooleanField(null=False)
