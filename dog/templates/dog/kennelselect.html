@@ -29,8 +29,9 @@
 <hr>
 {% endfor %}
 
-
-
+{% if request.user.is_staff %}
+<a href="{% url 'admin:index' %}">Link to admin panel</a>
+{% endif %}
 
 
 {% endblock %}
