@@ -1,4 +1,4 @@
-import csv, io
+import io
 from math import pi
 
 from bokeh.layouts import row
@@ -60,7 +60,7 @@ def kennelHome(request, name):
     kennel = Kennel.objects.get(name=name)
     dogs = kennel.dog_set.all()
     for dog in dogs:
-        if dog.pred_outcome == 'None':
+        if dog.pred_outcome is None:
             dog.save()
     adoptions_p = 0
     transfers_p = 0
