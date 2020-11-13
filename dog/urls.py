@@ -13,6 +13,7 @@ urlpatterns = [
     path('remove/<str:pk>', views.removeDog, name="remove"),
     path('delete/<str:pk>', views.deleteDog, name="delete"),
     path('uploaddogs/<str:pk>', views.uploadDogs, name="uploadDogs"),
+    path('downloaddogs/<str:pk>', views.downloadDogs, name="downloadDogs"),
     path('entry/', views.entry, name="entry"),
 
     path('kennel/genderplot/<str:pk>', views.genderPlot, name="genderPlot"),

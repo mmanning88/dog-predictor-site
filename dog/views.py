@@ -1,4 +1,4 @@
-import io
+import io, csv
 from math import pi
 
 from bokeh.layouts import row
@@ -47,12 +47,14 @@ def logoutUser(request):
     logout(request)
     return redirect('login')
 
+
 @login_required(login_url='login')
 def kennelSelect(request):
     kennels = Kennel.objects.all()
 
     context = {'kennels': kennels}
     return render(request, 'dog/kennelselect.html', context)
+
 
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['operator'])
@@ -89,7 +91,6 @@ def kennelHome(request, name):
                     euthanasias_t += 1
                 elif dog.true_outcome == 'Return to Owner':
                     returns_t += 1
-
 
     x = {
         'Adoption': adoptions_p,
@@ -164,6 +165,7 @@ def entry(request):
 
     return render(request, 'dog/entry.html', context)
 
+
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['operator'])
 def uploadDogs(request, pk):
@@ -202,11 +204,46 @@ def uploadDogs(request, pk):
     except Exception as e:
         print('Error While Importing Data: ', e)
 
-
-
     context = {'kennel': kennel}
 
     return render(request, 'dog/uploaddogs.html', context)
+
+
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
+def downloadDogs(request, pk):
+    kennel = Kennel.objects.get(pk=pk)
+    dogs = kennel.dog_set.all()
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="file.csv"'
+    fields = ['id','sex','breed', 'condition','intake_type','coat_pattern','primary_color',
+              'age','mixed','puppy','bully','kennel', 'pred_outcome', 'true_outcome']
+    print(fields)
+    writer = csv.DictWriter(response, fieldnames=fields)
+    writer.writeheader()
+    for dog in dogs:
+        writer.writerow(
+            {
+                'id': dog.id,
+                'sex': dog.sex,
+                'breed': dog.breed,
+                'condition': dog.condition,
+                'intake_type': dog.intake_type,
+                'coat_pattern': dog.coat_pattern,
+                'primary_color': dog.primary_color,
+                'age': dog.age,
+                'mixed': dog.mixed,
+                'puppy': dog.puppy,
+                'bully': dog.bully,
+                'kennel': dog.kennel.name,
+                'pred_outcome': dog.pred_outcome,
+                'true_outcome': dog.true_outcome
+            }
+        )
+
+    return response
+
 
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['operator'])
@@ -238,7 +275,6 @@ def removeDog(request, pk):
     if request.method == 'POST':
         form = RemoveDog(request.POST, instance=dog)
         if form.is_valid():
-
             dog.kennel = kennels.get(name='Historical Outcomes')
             form.save()
             return redirect('kennelHome', name=kennelName)
@@ -252,7 +288,7 @@ def deleteDog(request, pk):
     dog = Dog.objects.get(id=pk)
     kennel = dog.kennel
 
-    context = {'dog': dog, 'kennel':kennel}
+    context = {'dog': dog, 'kennel': kennel}
 
     if request.method == 'POST':
         kennelName = dog.kennel.name
@@ -375,13 +411,12 @@ def outcomeTimePlot(request, pk):
     data['created'] = data['created'].dt.strftime('%H:%M')
     data['created'] = data['created'].astype('datetime64[ns]')
 
-
     source = ColumnDataSource(data)
     plot = figure(plot_width=800, plot_height=350, y_range=items, x_axis_type='datetime',
                   title="Outcomes by Time and Day for " + kennel.name, tools='save, hover')
 
-
-    plot.circle(x='created', y=jitter(kennel_string, width=0.7, range=plot.y_range), fill_color="navy", source=source, alpha=0.4)
+    plot.circle(x='created', y=jitter(kennel_string, width=0.7, range=plot.y_range), fill_color="navy", source=source,
+                alpha=0.4)
 
     plot.xaxis[0].formatter.days = ['%Hh']
     plot.x_range.range_padding = 0

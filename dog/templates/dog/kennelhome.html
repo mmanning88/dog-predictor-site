@@ -88,12 +88,16 @@
                                                href="{% url 'outcomeTimePlot' kennel.id %}">Outcomes by Time</a></li>
                 <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block"
                                                href="{% url 'outcomeCompare' %}">Predicted vs Actual Outcomes</a></li>
+                <li><a class="btn btn-success  btn-sm btn-block"
+                                               href="{% url 'downloadDogs' kennel.id %}">Export Dogs</a></li>
             </ul>
             {% else %}
             <a title="Add a new dog to {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
                href="{% url 'entry' %}">Add Dog to Kennel</a>
             <a class="btn btn-success  btn-sm btn-block"
                                                href="{% url 'uploadDogs' kennel.id %}">Import Dogs</a>
+            <a class="btn btn-success  btn-sm btn-block"
+                                               href="{% url 'downloadDogs' kennel.id %}">Export Dogs</a>
             {% endif %}
 
         </div>
