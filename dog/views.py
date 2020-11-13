@@ -13,6 +13,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django_pandas.io import read_frame
 
 import holoviews as hv
+from holoviews import opts
 
 from .forms import DogEntry, RemoveDog
 from .models import *
@@ -387,6 +388,7 @@ def outcomeHeatMap(request, pk):
     hm = hv.HeatMap(data).sort()
     hm.opts(xticks=None, colorbar=True, width=600, xlabel='Intake Type', ylabel='Predicted Outcome',
             tools=['hover'], cmap='inferno', title="Outcomes by Intake Type for " + kennel.name)
+    # hm = hm * hv.Labels(hm)
     renderer = hv.renderer('bokeh')
     plot = renderer.get_plot(hm).state
     script, div = components(plot)
@@ -441,7 +443,8 @@ def outcomeCompare(request):
     data['norm'] = data['norm'].div(a)
     hm = hv.HeatMap(data).sort()
     hm.opts(colorbar=True, width=600, xlabel='Predicted Outcome', ylabel='True Outcome',
-            cmap='inferno', normalize=True, tools=['hover'], title="Confusion Matrix for Historical Data")
+            cmap='RdBu', normalize=True, tools=['hover'], title="Confusion Matrix for Historical Data")
+    hm = hm * hv.Labels(hm)
     renderer = hv.renderer('bokeh')
     plot = renderer.get_plot(hm).state
     script, div = components(plot)
