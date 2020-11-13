@@ -36,6 +36,7 @@ class Dog(models.Model):
     sex = models.CharField(max_length=10, choices=SEX, null=False)
     fixed = models.BooleanField(null=False)
     created = models.DateTimeField(null=False, default=timezone.now, verbose_name="Intake Time (MM/DD/YYYY HH:MM)")
+    checkout = models.DateTimeField(null=True, blank=True)
 
     PATTERNS = (
         ('none', 'None'),

@@ -14,7 +14,7 @@ urlpatterns = [
     path('delete/<str:pk>', views.deleteDog, name="delete"),
     path('uploaddogs/<str:pk>', views.uploadDogs, name="uploadDogs"),
     path('downloaddogs/<str:pk>', views.downloadDogs, name="downloadDogs"),
-    path('entry/', views.entry, name="entry"),
+    path('entry/<str:pk>', views.entry, name="entry"),
 
     path('kennel/genderplot/<str:pk>', views.genderPlot, name="genderPlot"),
     path('kennel/dayweekhm/<str:pk>', views.dayweekHeatMap, name="dayweekHeatMap"),

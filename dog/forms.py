@@ -1,10 +1,11 @@
-from django.forms import ModelForm, Form, CharField, Select, ChoiceField
 from bootstrap_datepicker_plus import DateTimePickerInput
+from django.forms import ModelForm, TextInput
 
-from .models import Dog, Kennel
+from .models import Dog
 
 
 class DogEntry(ModelForm):
+
     class Meta:
         model = Dog
         fields = [
@@ -20,15 +21,20 @@ class DogEntry(ModelForm):
             'puppy',
             'bully',
             'created',
+            'kennel'
         ]
         widgets = {
             'created': DateTimePickerInput(),
+            'kennel': TextInput(attrs={'class': 'kennel'}),
         }
 
 class RemoveDog(ModelForm):
     class Meta:
         model = Dog
         fields = [
-            'true_outcome'
+            'true_outcome',
+            'checkout'
         ]
-
+        widgets = {
+            'checkout': DateTimePickerInput(),
+        }

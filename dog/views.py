@@ -151,23 +151,6 @@ def kennelHome(request, name):
 
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['operator'])
-def entry(request):
-    form = DogEntry()
-    kennels = Kennel.objects.all()
-    if request.method == 'POST':
-        form = DogEntry(request.POST, instance=Dog())
-        if form.is_valid():
-            new_dog = form.save()
-            kennel_name = new_dog.kennel.name
-            return redirect('kennelHome', name=kennel_name)
-
-    context = {'form': form, 'kennels': kennels}
-
-    return render(request, 'dog/entry.html', context)
-
-
-@login_required(login_url='login')
-@allowed_users(allowed_roles=['operator'])
 def uploadDogs(request, pk):
     kennel = Kennel.objects.get(id=pk)
 
@@ -244,14 +227,31 @@ def downloadDogs(request, pk):
 
     return response
 
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['operator'])
+def entry(request, pk):
+    kennel = Kennel.objects.get(id=pk)
+    form = DogEntry(initial={'kennel':kennel})
+    if request.method == 'POST':
+        form = DogEntry(request.POST, instance=Dog())
+        if form.is_valid():
+            kennel_name = kennel.name
+            form.save()
+            return redirect('kennelHome', name=kennel_name)
+
+    context = {'form': form, 'kennel': kennel}
+
+    return render(request, 'dog/entry.html', context)
+
 
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['operator'])
 def updateDog(request, pk):
     dog = Dog.objects.get(id=pk)
+    kennel = dog.kennel
     form = DogEntry(instance=dog)
 
-    context = {'form': form}
+    context = {'form': form, 'kennel': kennel}
 
     if request.method == 'POST':
         form = DogEntry(request.POST, instance=dog)

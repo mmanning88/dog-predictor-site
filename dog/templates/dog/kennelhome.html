@@ -93,7 +93,7 @@
             </ul>
             {% else %}
             <a title="Add a new dog to {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
-               href="{% url 'entry' %}">Add Dog to Kennel</a>
+               href="{% url 'entry' kennel.id %}">Add Dog to Kennel</a>
             <a class="btn btn-success  btn-sm btn-block"
                                                href="{% url 'uploadDogs' kennel.id %}">Import Dogs</a>
             <a class="btn btn-success  btn-sm btn-block"

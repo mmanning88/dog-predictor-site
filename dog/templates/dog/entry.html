@@ -6,7 +6,14 @@
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
 {{ form.media }}
+<style>
 
+    .kennel {
+        visibility:hidden
+    }
+
+</style>
+<a class="btn btn-danger" href="{% url 'kennelHome' kennel.name %}">Cancel</a>
 <div class="row">
     <div class="col-md-6">
         <div class="card card-body">
@@ -16,8 +23,13 @@
 
                 {% csrf_token %}
                 {% for field in form %}
+                {% if field.name != "kennel" %}
                 <label>{{ field.label}}</label>
                 {{field}}
+                {%else%}
+                {{field}}
+                {% endif %}
+
                 <hr>
                 {% endfor %}
 
