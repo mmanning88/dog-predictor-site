@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.utils import timezone
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponseNotFound
 
 from django_pandas.io import read_frame
 
@@ -305,7 +305,8 @@ def dayweekHeatMap(request, pk):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
-
+    if dogs.count() < 1:
+        return HttpResponse('<h1>Must have one dog in kennel first</h1>')
     data = read_frame(dogs, fieldnames=['day', 'hour'])
     data = data.groupby(["day", "hour"]).size().reset_index(name="counts")
     hm = hv.HeatMap(data).sort()
@@ -325,6 +326,8 @@ def dayweekHeatMap(request, pk):
 def genderPlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
+    if dogs.count() < 1:
+        return HttpResponse('<h1>Must have one dog in kennel first</h1>')
     sexes = ['male', 'female']
     adoptions_male = 0
     transfers_male = 0
@@ -382,7 +385,8 @@ def outcomeHeatMap(request, pk):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=pk)
     dogs = kennel.dog_set.all()
-
+    if dogs.count() < 1:
+        return HttpResponse('<h1>Must have one dog in kennel first</h1>')
     data = read_frame(dogs, fieldnames=['intake_type', 'pred_outcome'])
     data = data.groupby(["intake_type", "pred_outcome"]).size().reset_index(name="counts")
     hm = hv.HeatMap(data).sort()
@@ -401,23 +405,25 @@ def outcomeHeatMap(request, pk):
 @allowed_users(allowed_roles=['operator'])
 def outcomeTimePlot(request, pk):
     kennel = Kennel.objects.get(id=pk)
-
-    dogs = kennel.dog_set.all()
-    kennel_string = 'true_outcome'
     if kennel.id != 2:
-        kennel_string = 'pred_outcome'
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    dogs = kennel.dog_set.all()
+    if dogs.count() < 1:
+        return HttpResponse('<h1>Must have one dog in kennel first</h1>')
+    kennel_string = 'true_outcome'
+
 
     # Extract Hour and Minutes from creation date and set type as datetime
-    data = read_frame(dogs, fieldnames=['created', kennel_string])
+    data = read_frame(dogs, fieldnames=['checkout', kennel_string])
     items = ["Adoption", "Transfer", "Euthanasia", "Return to Owner"]
-    data['created'] = data['created'].dt.strftime('%H:%M')
-    data['created'] = data['created'].astype('datetime64[ns]')
+    data['checkout'] = data['checkout'].dt.strftime('%H:%M')
+    data['checkout'] = data['checkout'].astype('datetime64[ns]')
 
     source = ColumnDataSource(data)
     plot = figure(plot_width=800, plot_height=350, y_range=items, x_axis_type='datetime',
                   title="Outcomes by Time and Day for " + kennel.name, tools='save, hover')
 
-    plot.circle(x='created', y=jitter(kennel_string, width=0.7, range=plot.y_range), fill_color="navy", source=source,
+    plot.circle(x='checkout', y=jitter(kennel_string, width=0.7, range=plot.y_range), fill_color="navy", source=source,
                 alpha=0.4)
 
     plot.xaxis[0].formatter.days = ['%Hh']
@@ -437,6 +443,8 @@ def outcomeCompare(request):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=2)
     dogs = kennel.dog_set.all()
+    if dogs.count() < 1:
+        return HttpResponse('<h1>Must have one dog in kennel first</h1>')
     data = read_frame(dogs, fieldnames=['pred_outcome', 'true_outcome'])
     data = data.groupby(["pred_outcome", "true_outcome"]).size().reset_index(name="norm")
     a = data.groupby('pred_outcome')['norm'].transform('sum')

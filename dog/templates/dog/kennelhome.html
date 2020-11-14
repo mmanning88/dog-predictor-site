@@ -3,10 +3,10 @@
 {% block content %}
 <a class="btn btn-sm btn-info" href="{% url 'kennelSelect'  %}">Back to Kennel Select</a>
 <hr>
-  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseHome" aria-expanded="false" aria-controls="collapseHome">
     Guide
   </button>
-<div class="collapse" id="collapseExample">
+<div class="collapse" id="collapseHome">
   <div class="card card-body">
 
         <p>This dashboard shows the current occupants of the kennel, the predicted outcome is this product's prediction on what
@@ -88,8 +88,8 @@
                                                href="{% url 'outcomeTimePlot' kennel.id %}">Outcomes by Time</a></li>
                 <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block"
                                                href="{% url 'outcomeCompare' %}">Predicted vs Actual Outcomes</a></li>
-                <li><a class="btn btn-success  btn-sm btn-block"
-                                               href="{% url 'downloadDogs' kennel.id %}">Export Dogs</a></li>
+                <li class="list-group-item"><a class="btn btn-success  btn-sm btn-block"
+                                               href="{% url 'downloadDogs' kennel.id %}">Export Dogs As CSV File</a></li>
             </ul>
             {% else %}
             <a title="Add a new dog to {{kennel.name}} kennel" class="btn btn-primary  btn-sm btn-block"
@@ -97,7 +97,7 @@
             <a class="btn btn-success  btn-sm btn-block"
                                                href="{% url 'uploadDogs' kennel.id %}">Import Dogs</a>
             <a class="btn btn-success  btn-sm btn-block"
-                                               href="{% url 'downloadDogs' kennel.id %}">Export Dogs</a>
+                                               href="{% url 'downloadDogs' kennel.id %}">Export Dogs As CSV File</a>
             {% endif %}
 
         </div>
