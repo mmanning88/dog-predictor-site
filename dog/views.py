@@ -439,7 +439,7 @@ def outcomeTimePlot(request, pk):
 
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['operator'])
-def compareOutcome(request):
+def outcomeCompare(request):
     hv.extension('bokeh')
     kennel = Kennel.objects.get(id=2)
     dogs = kennel.dog_set.all()
@@ -458,4 +458,4 @@ def compareOutcome(request):
     script, div = components(plot)
 
     context = {'script': script, 'div': div, 'kennel': kennel}
-    return render(request, 'dog/compareOutcome.html', context)
+    return render(request, 'dog/outcomecompare.html', context)

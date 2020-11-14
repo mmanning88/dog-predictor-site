@@ -20,7 +20,7 @@ urlpatterns = [
     path('kennel/dayweekhm/<str:pk>', views.dayweekHeatMap, name="dayweekHeatMap"),
     path('kennel/outcomehm/<str:pk>', views.outcomeHeatMap, name="outcomeHeatMap"),
     path('kennel/outcometimeplot/<str:pk>', views.outcomeTimePlot, name="outcomeTimePlot"),
-    path('kennel/compareoutcome', views.compareOutcome, name="compareOutcome"),
+    path('kennel/outcomecompare', views.outcomeCompare, name="outcomeCompare"),
 
     path('<str:name>/home', views.kennelHome, name="kennelHome"),
 
