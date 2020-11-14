@@ -1,0 +1,17 @@
+{% extends 'dog/main.html' %}
+{% block content %}
+
+<div class="card">
+  <div class="card-body">
+
+    {{div | safe}}
+
+
+    {{script | safe}}
+    <p>This heat map shows how accurate the prediction model has been. The x axis shows the predicted outcome,
+      and where it meets with the y axis shows how often that prediction was made. The correct predictions
+      are where the predicted outcome and true outcome are the same</p>
+    <a class="btn btn-sm btn-info" href="{% url 'kennelHome' kennel.name %}">Back to Kennel Dashboard</a>
+  </div>
+</div>
+{% endblock %}
