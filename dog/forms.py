@@ -38,3 +38,7 @@ class RemoveDog(ModelForm):
         widgets = {
             'checkout': DateTimePickerInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(RemoveDog, self).__init__(*args, **kwargs)
+        self.fields['checkout'].required = True

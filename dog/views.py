@@ -412,7 +412,6 @@ def outcomeTimePlot(request, pk):
         return HttpResponse('<h1>Must have one dog in kennel first</h1>')
     kennel_string = 'true_outcome'
 
-
     # Extract Hour and Minutes from creation date and set type as datetime
     data = read_frame(dogs, fieldnames=['checkout', kennel_string])
     items = ["Adoption", "Transfer", "Euthanasia", "Return to Owner"]
